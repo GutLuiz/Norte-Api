@@ -17,4 +17,9 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\UepaMed.Application\UepaMed.Application.csproj" />
+    <ProjectReference Include="..\UepaMed.Infrastructure\UepaMed.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

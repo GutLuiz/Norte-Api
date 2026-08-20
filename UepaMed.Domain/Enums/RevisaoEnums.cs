@@ -1,4 +1,4 @@
-﻿namespace UepaMed.Enums
+﻿namespace UepaMed.Domain.Enums
 {
     public enum TipoRevisao
     {

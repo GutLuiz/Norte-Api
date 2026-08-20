@@ -1,19 +1,22 @@
-﻿using UepaMed.Data;
-using UepaMed.Dtos;
-using UepaMed.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Security.Claims;
+using UepaMed.Application.DTOs;
+using UepaMed.Application.Interfaces;
+using UepaMed.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
-namespace UepaMed.Services
+namespace UepaMed.Application.Services
 {
     public class RevisaoService
     {
-        private readonly AppDbContext _context;
+        private readonly IRevisaoRepository _revisaoRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public RevisaoService(AppDbContext context, IHttpContextAccessor httpContextAccessor)
+        public RevisaoService(
+            IRevisaoRepository revisaoRepository,
+            IHttpContextAccessor httpContextAccessor)
         {
-            _context = context;
+            _revisaoRepository = revisaoRepository;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -38,9 +41,9 @@ namespace UepaMed.Services
                 UsuarioId = usuarioId
             };
 
-            _context.Revisoes.Add(revisao);
+            await _revisaoRepository.AdicionarAsync(revisao);
 
-            await _context.SaveChangesAsync();
+            await _revisaoRepository.SalvarAsync();
 
             return revisao;
         }
@@ -56,21 +59,20 @@ namespace UepaMed.Services
                 throw new UnauthorizedAccessException("Usuário não autenticado.");
             }
 
-            return await _context.Revisoes
-                .Where(r => r.UsuarioId == usuarioId)
-                .Select(r => new RevisaoListaDto
-                {
-                    Id = r.Id,
-                    Titulo = r.Titulo,
-                    Tipo = r.Tipo,
-                    Dominio = r.Dominio,
-                    Descricao = r.Descricao,
-                    DataCriacao = r.DataCriacao
-                })
-                .ToListAsync();
-        }
+            var revisoes = await _revisaoRepository
+                .ListarPorUsuarioAsync(usuarioId);
 
-        public async Task<Revisao?> AtualizarRevisao(Guid id, AtualizarRevisaoDto dto)
+            return revisoes.Select(r => new RevisaoListaDto
+            {
+                Id = r.Id,
+                Titulo = r.Titulo,
+                Tipo = r.Tipo,
+                Dominio = r.Dominio,
+                Descricao = r.Descricao,
+                DataCriacao = r.DataCriacao
+            }).ToList();
+        }
+        public async Task<Revisao?> AtualizarRevisao(int id, AtualizarRevisaoDto dto)
         {
             var usuarioIdClaim = _httpContextAccessor.HttpContext?
                 .User
@@ -81,8 +83,8 @@ namespace UepaMed.Services
                 throw new UnauthorizedAccessException("Usuário não autenticado.");
             }
 
-            var revisao = await _context.Revisoes
-                .FirstOrDefaultAsync(r => r.Id == id && r.UsuarioId == usuarioId);
+            var revisao = await _revisaoRepository
+                .BuscarPorIdEUsuarioAsync(id, usuarioId);
 
             if (revisao == null)
             {
@@ -95,12 +97,12 @@ namespace UepaMed.Services
             revisao.Descricao = dto.Descricao;
             revisao.DataAtualizacao = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            await _revisaoRepository.SalvarAsync();
 
             return revisao;
         }
 
-        public async Task<bool> DeletarRevisao(Guid id)
+        public async Task<bool> DeletarRevisao(int id)
         {
             var usuarioIdClaim = _httpContextAccessor.HttpContext?
                 .User
@@ -111,17 +113,17 @@ namespace UepaMed.Services
                 throw new UnauthorizedAccessException("Usuário não autenticado.");
             }
 
-            var revisao = await _context.Revisoes
-                .FirstOrDefaultAsync(r => r.Id == id && r.UsuarioId == usuarioId);
+            var revisao = await _revisaoRepository
+                .BuscarPorIdEUsuarioAsync(id, usuarioId);
 
             if (revisao == null)
             {
                 return false;
             }
 
-            _context.Revisoes.Remove(revisao);
+            await _revisaoRepository.RemoverAsync(revisao);
 
-            await _context.SaveChangesAsync();
+            await _revisaoRepository.SalvarAsync();
 
             return true;
         }

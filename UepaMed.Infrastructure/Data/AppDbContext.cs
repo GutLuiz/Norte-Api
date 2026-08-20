@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UepaMed.Models;
+using UepaMed.Domain.Entities;
 
-namespace UepaMed.Data
+namespace UepaMed.Infrastructure.Data
 {
     public class AppDbContext : DbContext
     {

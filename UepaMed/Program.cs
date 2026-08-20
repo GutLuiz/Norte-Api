@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using UepaMed.Data;
-using UepaMed.Services;
+using UepaMed.Infrastructure.Data;
+using UepaMed.Application.Interfaces;
+using UepaMed.Application.Services;
+using UepaMed.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<RevisaoService>();
+builder.Services.AddScoped<IRevisaoRepository, RevisaoRepository>();
 
 builder.Services.AddCors(options =>
 {
@@ -56,7 +59,6 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
-builder.Services.AddControllers();
 
 var app = builder.Build();
 

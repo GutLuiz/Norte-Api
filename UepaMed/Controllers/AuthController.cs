@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using UepaMed.Data;
-using UepaMed.Dtos;
-using UepaMed.Models;
-using UepaMed.Services;
+using UepaMed.Infrastructure.Data;
+using UepaMed.Domain.Entities;
+using UepaMed.Application.DTOs;
+using UepaMed.Application.Services;
 
 namespace UepaMed.Controllers
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UepaMed.Dtos;
-using UepaMed.Services;
+using UepaMed.Application.DTOs;
+using UepaMed.Application.Services;
 
 namespace UepaMed.Controllers
 {
@@ -39,7 +39,7 @@ namespace UepaMed.Controllers
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Atualizar(
-        Guid id,
+        int id,
         AtualizarRevisaoDto dto)
         {
             var revisao = await _revisaoService.AtualizarRevisao(id, dto);
@@ -56,7 +56,7 @@ namespace UepaMed.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Deletar(Guid id)
+        public async Task<IActionResult> Deletar(int id)
         {
             var sucesso = await _revisaoService.DeletarRevisao(id);
 

@@ -1,4 +1,4 @@
-﻿namespace UepaMed.Models
+﻿namespace UepaMed.Domain.Entities
 {
     public class Usuario
     {

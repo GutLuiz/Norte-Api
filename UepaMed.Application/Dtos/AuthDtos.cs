@@ -1,4 +1,4 @@
-﻿namespace UepaMed.Dtos
+﻿namespace UepaMed.Application.DTOs
 {
     public record RegistroDto(string Nome, string Email, string Senha);
     public record LoginDto(string Email, string Senha);

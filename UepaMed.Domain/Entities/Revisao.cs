@@ -1,10 +1,10 @@
-﻿using UepaMed.Enums;
+﻿using UepaMed.Domain.Enums;
 
-namespace UepaMed.Models
+namespace UepaMed.Domain.Entities
 {
     public class Revisao
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public int UsuarioId { get; set; }
         public Usuario Usuario { get; set; } = null!;
 

@@ -1,6 +1,6 @@
-﻿using UepaMed.Enums;
+﻿using UepaMed.Domain.Enums;
 
-namespace UepaMed.Dtos
+namespace UepaMed.Application.DTOs
 {
     public class CriarRevisaoDto
     {
@@ -12,7 +12,7 @@ namespace UepaMed.Dtos
 
     public class RevisaoListaDto
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string Titulo { get; set; } = string.Empty;
         public TipoRevisao Tipo { get; set; }
         public DominioRevisao Dominio { get; set; }
