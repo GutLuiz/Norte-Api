@@ -1,3 +1,6 @@
 <Solution>
+  <Project Path="UepaMed.Application/UepaMed.Application.csproj" />
+  <Project Path="UepaMed.Domain/UepaMed.Domain.csproj" />
+  <Project Path="UepaMed.Infrastructure/UepaMed.Infrastructure.csproj" />
   <Project Path="UepaMed/UepaMed.csproj" />
 </Solution>
