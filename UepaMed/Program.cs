@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using UepaMed.Infrastructure.Data;
+using System.Text.Json.Serialization;
 using UepaMed.Application.Interfaces;
 using UepaMed.Application.Services;
+using UepaMed.Infrastructure.Data;
+using UepaMed.Infrastructure.Importers;
 using UepaMed.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,10 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<RevisaoService>();
 builder.Services.AddScoped<IRevisaoRepository, RevisaoRepository>();
+builder.Services.AddScoped<IImportadorArtigos, NbibImportador>();
+builder.Services.AddScoped<IArtigoRepository, ArtigoRepository>();
+builder.Services.AddScoped<ImportacaoArtigosService>();
+builder.Services.AddScoped< IArquivoImportacaoRepository,ArquivoImportacaoRepository>();
 
 builder.Services.AddCors(options =>
 {
@@ -67,4 +72,23 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+//var caminho = @"C:\teste\pubmed-outcomesty-set.nbib";
+
+//using var arquivo = File.OpenRead(caminho);
+
+//var importador = new NbibImportador();
+
+//var artigos = await importador.ImportarAsync(arquivo);
+
+//foreach (var artigo in artigos)
+//{
+//    Console.WriteLine($"PMID: {artigo.PMID}");
+//    Console.WriteLine($"Título: {artigo.Titulo}");
+//    Console.WriteLine($"Resumo: {artigo.Resumo}");
+//    Console.WriteLine($"Revista: {artigo.Revista}");
+//    Console.WriteLine($"Autores: {artigo.Autores}");
+//    Console.WriteLine($"DOI: {artigo.DOI}");
+//    Console.WriteLine($"Ano: {artigo.AnoPublicacao}");
+//    Console.WriteLine("-----------------------------------");
+//}
 app.Run();
