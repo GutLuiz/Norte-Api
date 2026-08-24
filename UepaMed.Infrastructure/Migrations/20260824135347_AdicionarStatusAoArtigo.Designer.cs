@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UepaMed.Infrastructure.Data;
@@ -11,9 +12,11 @@ using UepaMed.Infrastructure.Data;
 namespace UepaMed.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260824135347_AdicionarStatusAoArtigo")]
+    partial class AdicionarStatusAoArtigo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,43 +104,6 @@ namespace UepaMed.Infrastructure.Migrations
                     b.ToTable("Artigos");
                 });
 
-            modelBuilder.Entity("UepaMed.Domain.Entities.ConviteRevisao", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ConvidadoPorUsuarioId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("RespondidoEm")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("RevisaoId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UsuarioConvidadoId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ConvidadoPorUsuarioId");
-
-                    b.HasIndex("UsuarioConvidadoId");
-
-                    b.HasIndex("RevisaoId", "UsuarioConvidadoId", "Status");
-
-                    b.ToTable("ConvitesRevisao");
-                });
-
             modelBuilder.Entity("UepaMed.Domain.Entities.Revisao", b =>
                 {
                     b.Property<int>("Id")
@@ -173,35 +139,6 @@ namespace UepaMed.Infrastructure.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("Revisoes");
-                });
-
-            modelBuilder.Entity("UepaMed.Domain.Entities.RevisaoMembro", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Papel")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RevisaoId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RevisaoId");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("RevisoesMembro");
                 });
 
             modelBuilder.Entity("UepaMed.Domain.Entities.Usuario", b =>
@@ -268,33 +205,6 @@ namespace UepaMed.Infrastructure.Migrations
                     b.Navigation("Revisao");
                 });
 
-            modelBuilder.Entity("UepaMed.Domain.Entities.ConviteRevisao", b =>
-                {
-                    b.HasOne("UepaMed.Domain.Entities.Usuario", "ConvidadoPorUsuario")
-                        .WithMany()
-                        .HasForeignKey("ConvidadoPorUsuarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("UepaMed.Domain.Entities.Revisao", "Revisao")
-                        .WithMany()
-                        .HasForeignKey("RevisaoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UepaMed.Domain.Entities.Usuario", "UsuarioConvidado")
-                        .WithMany()
-                        .HasForeignKey("UsuarioConvidadoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ConvidadoPorUsuario");
-
-                    b.Navigation("Revisao");
-
-                    b.Navigation("UsuarioConvidado");
-                });
-
             modelBuilder.Entity("UepaMed.Domain.Entities.Revisao", b =>
                 {
                     b.HasOne("UepaMed.Domain.Entities.Usuario", "Usuario")
@@ -302,25 +212,6 @@ namespace UepaMed.Infrastructure.Migrations
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("UepaMed.Domain.Entities.RevisaoMembro", b =>
-                {
-                    b.HasOne("UepaMed.Domain.Entities.Revisao", "Revisao")
-                        .WithMany()
-                        .HasForeignKey("RevisaoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UepaMed.Domain.Entities.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Revisao");
 
                     b.Navigation("Usuario");
                 });

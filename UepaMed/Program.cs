@@ -23,6 +23,11 @@ builder.Services.AddScoped<IImportadorArtigos, NbibImportador>();
 builder.Services.AddScoped<IArtigoRepository, ArtigoRepository>();
 builder.Services.AddScoped<ImportacaoArtigosService>();
 builder.Services.AddScoped< IArquivoImportacaoRepository,ArquivoImportacaoRepository>();
+builder.Services.AddScoped<IRevisaoMembroRepository, RevisaoMembroRepository>();
+builder.Services.AddScoped<IConviteRevisaoRepository,ConviteRevisaoRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<ConviteRevisaoService>();
+
 
 builder.Services.AddCors(options =>
 {

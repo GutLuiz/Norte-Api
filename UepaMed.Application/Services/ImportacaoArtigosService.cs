@@ -66,18 +66,40 @@ namespace UepaMed.Application.Services
             var arquivos = await _arquivoRepository
                 .ListarArquivosPorRevisao(revisaoId);
 
-            return arquivos.Select(a => new ArquivosListaDto
+            var contagens = await _artigoRepository
+                .ListarContagemStatusPorArquivoAsync(revisaoId);
+
+            return arquivos.Select(arquivo =>
             {
-                Id = a.Id,
-                NomeArquivo = a.NomeArquivo,
-                QuantidadeArtigos = a.QuantidadeArtigos,
-                TipoArquivo = a.TipoArquivo
+                var status = contagens
+                    .FirstOrDefault(c => c.ArquivoImportacaoId == arquivo.Id);
+
+                return new ArquivosListaDto
+                {
+                    Id = arquivo.Id,
+                    NomeArquivo = arquivo.NomeArquivo,
+                    QuantidadeArtigos = arquivo.QuantidadeArtigos,
+                    TipoArquivo = arquivo.TipoArquivo,
+
+                    QuantidadeIncluidos = status?.QuantidadeIncluidos ?? 0,
+                    QuantidadePendentes = status?.QuantidadePendentes ?? 0,
+                    QuantidadeExcluidos = status?.QuantidadeExcluidos ?? 0
+                };
             }).ToList();
         }
 
         public async Task<List<Artigo>> ListarArtigosAsync(int revisaoId)
         {
             return await _artigoRepository.ObterPorRevisaoAsync(revisaoId);
+        }
+
+        public async Task MudarStatusArtigo(
+        int artigoId,
+        StatusArtigo status)
+        {
+            await _artigoRepository.MudarStatusAsync(
+                artigoId,
+                status);
         }
 
         public async Task RemoverAsync(int arquivoImportacaoId)

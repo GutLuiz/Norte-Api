@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using UepaMed.Application.Dtos;
 using UepaMed.Application.Interfaces;
 using UepaMed.Domain.Entities;
+using UepaMed.Domain.Enums;
 using UepaMed.Infrastructure.Data;
 
 namespace UepaMed.Infrastructure.Repositories
@@ -32,6 +34,8 @@ namespace UepaMed.Infrastructure.Repositories
                 .Where(a => a.RevisaoId == revisaoId)
                 .ToListAsync();
         }
+
+       
 
         public async Task RemoverAsync(ArquivoImportacao arquivo)
         {

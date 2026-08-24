@@ -1,23 +1,24 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UepaMed.Application.Services;
+using UepaMed.Domain.Enums;
 
 namespace UepaMed.Controllers
 {
     [Authorize]
     [ApiController]
     [Route("api/revisoes/{revisaoId}/importacoes")]
-    public class ImportacaoArtigosController : ControllerBase
+    public class ArquivosController : ControllerBase
     {
         private readonly ImportacaoArtigosService _service;
 
-        public ImportacaoArtigosController(ImportacaoArtigosService service)
+        public ArquivosController(ImportacaoArtigosService service)
         {
             _service = service;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Importar(
+        public async Task<IActionResult> ImportarArquivos(
             int revisaoId,
             IFormFile arquivo)
         {
@@ -35,27 +36,36 @@ namespace UepaMed.Controllers
             {
                 mensagem = "Arquivo importado com sucesso.",
                 quantidadeArtigos = artigos.Count,
-               // artigos
             });
         }
         [HttpGet]
-        public async Task<IActionResult> ListarImportacoes(int revisaoId)
+        public async Task<IActionResult> ListarArquivos(int revisaoId)
         {
             var importacoes = await _service.ListarArquivosAsync(revisaoId);
 
             return Ok(importacoes);
         }
 
-        [HttpGet("artigos")]
-        public async Task<IActionResult> ListarArtigos(int revisaoId)
-        {
-            var importacoes = await _service.ListarArtigosAsync(revisaoId);
+        //[HttpGet("artigos")]
+        //public async Task<IActionResult> ListarArtigos(int revisaoId)
+        //{
+        //    var importacoes = await _service.ListarArtigosAsync(revisaoId);
 
-            return Ok(importacoes);
-        }
+        //    return Ok(importacoes);
+        //}
+
+        //[HttpPut("{artigoId}/status")]
+        //public async Task<IActionResult> MudarStatusArtigo(
+        //int artigoId,
+        //[FromBody] StatusArtigo status)
+        //{
+        //    await _service.MudarStatusArtigo(artigoId, status);
+
+        //    return NoContent();
+        //}
 
         [HttpDelete("{arquivoImportacaoId}")]
-        public async Task<IActionResult> Remover(
+        public async Task<IActionResult> RemoverArquivos(
             int revisaoId,
             int arquivoImportacaoId)
         {

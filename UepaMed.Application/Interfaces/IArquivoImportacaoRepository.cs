@@ -1,4 +1,5 @@
-﻿using UepaMed.Domain.Entities;
+﻿using UepaMed.Application.Dtos;
+using UepaMed.Domain.Entities;
 
 
 namespace UepaMed.Application.Interfaces
@@ -11,6 +12,7 @@ namespace UepaMed.Application.Interfaces
 
         Task<List<ArquivoImportacao>> ListarArquivosPorRevisao(int revisaoId);
 
+       
         Task RemoverAsync(ArquivoImportacao arquivo);
     }
 }

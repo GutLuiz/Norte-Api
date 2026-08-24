@@ -1,23 +1,26 @@
-﻿using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using UepaMed.Application.DTOs;
 using UepaMed.Application.Interfaces;
 using UepaMed.Domain.Entities;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
+using UepaMed.Domain.Enums;
 
 namespace UepaMed.Application.Services
 {
     public class RevisaoService
     {
         private readonly IRevisaoRepository _revisaoRepository;
+        private readonly IRevisaoMembroRepository _revisaoMembroRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public RevisaoService(
             IRevisaoRepository revisaoRepository,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IRevisaoMembroRepository revisaoMembroRepository)
         {
             _revisaoRepository = revisaoRepository;
             _httpContextAccessor = httpContextAccessor;
+            _revisaoMembroRepository = revisaoMembroRepository;
         }
 
         public async Task<Revisao> CriarRevisao(CriarRevisaoDto dto)
@@ -44,6 +47,16 @@ namespace UepaMed.Application.Services
             await _revisaoRepository.AdicionarAsync(revisao);
 
             await _revisaoRepository.SalvarAsync();
+
+            var membro = new RevisaoMembro
+            {
+                RevisaoId = revisao.Id,
+                UsuarioId = usuarioId,
+                Papel = PapelMembroRevisao.Proprietario
+            };
+
+            await _revisaoMembroRepository.AdicionarAsync(membro);
+            await _revisaoMembroRepository.SalvarAsync();
 
             return revisao;
         }

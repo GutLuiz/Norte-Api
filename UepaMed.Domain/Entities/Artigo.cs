@@ -1,5 +1,7 @@
 ﻿
 
+using UepaMed.Domain.Enums;
+
 namespace UepaMed.Domain.Entities
 {
     public class Artigo
@@ -27,5 +29,7 @@ namespace UepaMed.Domain.Entities
         public Revisao Revisao { get; set; } = null!;
 
         public ArquivoImportacao ArquivoImportacao { get; set; } = null!;
+
+        public StatusArtigo Status { get; set; } = StatusArtigo.Pendente;
     }
 }
