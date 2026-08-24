@@ -26,7 +26,7 @@ namespace UepaMed.Infrastructure.Repositories
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
-        public async Task<List<ArquivoImportacao>> ObterPorRevisaoAsync(int revisaoId)
+        public async Task<List<ArquivoImportacao>> ListarArquivosPorRevisao(int revisaoId)
         {
             return await _context.ArquivosImportacao
                 .Where(a => a.RevisaoId == revisaoId)

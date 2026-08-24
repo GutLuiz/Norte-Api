@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using UepaMed.Application.Services;
 
 namespace UepaMed.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/revisoes/{revisaoId}/importacoes")]
     public class ImportacaoArtigosController : ControllerBase
@@ -33,7 +35,35 @@ namespace UepaMed.Controllers
             {
                 mensagem = "Arquivo importado com sucesso.",
                 quantidadeArtigos = artigos.Count,
-                artigos
+               // artigos
+            });
+        }
+        [HttpGet]
+        public async Task<IActionResult> ListarImportacoes(int revisaoId)
+        {
+            var importacoes = await _service.ListarArquivosAsync(revisaoId);
+
+            return Ok(importacoes);
+        }
+
+        [HttpGet("artigos")]
+        public async Task<IActionResult> ListarArtigos(int revisaoId)
+        {
+            var importacoes = await _service.ListarArtigosAsync(revisaoId);
+
+            return Ok(importacoes);
+        }
+
+        [HttpDelete("{arquivoImportacaoId}")]
+        public async Task<IActionResult> Remover(
+            int revisaoId,
+            int arquivoImportacaoId)
+        {
+            await _service.RemoverAsync(arquivoImportacaoId);
+
+            return Ok(new
+            {
+                mensagem = "Arquivo e artigos relacionados removidos com sucesso."
             });
         }
     }

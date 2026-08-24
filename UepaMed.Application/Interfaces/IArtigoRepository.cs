@@ -10,5 +10,7 @@ namespace UepaMed.Application.Interfaces
         Task AdicionarAsync(Artigo artigo);
 
         Task<List<Artigo>> ObterPorRevisaoAsync(int revisaoId);
+
+        Task RemoverPorArquivoImportacaoAsync(int arquivoImportacaoId);
     }
 }

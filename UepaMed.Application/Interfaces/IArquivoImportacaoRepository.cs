@@ -9,7 +9,7 @@ namespace UepaMed.Application.Interfaces
 
         Task<ArquivoImportacao?> ObterPorIdAsync(int id);
 
-        Task<List<ArquivoImportacao>> ObterPorRevisaoAsync(int revisaoId);
+        Task<List<ArquivoImportacao>> ListarArquivosPorRevisao(int revisaoId);
 
         Task RemoverAsync(ArquivoImportacao arquivo);
     }

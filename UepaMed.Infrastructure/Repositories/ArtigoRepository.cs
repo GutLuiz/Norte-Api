@@ -26,5 +26,16 @@ namespace UepaMed.Infrastructure.Repositories
                 .Where(a => a.RevisaoId == revisaoId)
                 .ToListAsync();
         }
+
+        public async Task RemoverPorArquivoImportacaoAsync(int arquivoImportacaoId)
+        {
+            var artigos = await _context.Artigos
+                .Where(a => a.ArquivoImportacaoId == arquivoImportacaoId)
+                .ToListAsync();
+
+            _context.Artigos.RemoveRange(artigos);
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

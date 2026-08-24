@@ -1,4 +1,5 @@
-﻿using UepaMed.Application.Interfaces;
+﻿using UepaMed.Application.Dtos;
+using UepaMed.Application.Interfaces;
 using UepaMed.Domain.Entities;
 using UepaMed.Domain.Enums;
 
@@ -27,8 +28,10 @@ namespace UepaMed.Application.Services
             var extensao = Path.GetExtension(nomeArquivo);
 
             if (!_importador.Suporta(extensao))
+            {
                 throw new ArgumentException(
                     $"O arquivo {nomeArquivo} não é suportado.");
+            }
 
             var artigos = await _importador.ImportarAsync(arquivo);
 
@@ -56,6 +59,44 @@ namespace UepaMed.Application.Services
             }
 
             return artigos;
+        }
+
+        public async Task<List<ArquivosListaDto>> ListarArquivosAsync(int revisaoId)
+        {
+            var arquivos = await _arquivoRepository
+                .ListarArquivosPorRevisao(revisaoId);
+
+            return arquivos.Select(a => new ArquivosListaDto
+            {
+                Id = a.Id,
+                NomeArquivo = a.NomeArquivo,
+                QuantidadeArtigos = a.QuantidadeArtigos,
+                TipoArquivo = a.TipoArquivo
+            }).ToList();
+        }
+
+        public async Task<List<Artigo>> ListarArtigosAsync(int revisaoId)
+        {
+            return await _artigoRepository.ObterPorRevisaoAsync(revisaoId);
+        }
+
+        public async Task RemoverAsync(int arquivoImportacaoId)
+        {
+            var arquivo = await _arquivoRepository
+                .ObterPorIdAsync(arquivoImportacaoId);
+
+            if (arquivo == null)
+            {
+                throw new KeyNotFoundException(
+                    "Arquivo de importação não encontrado.");
+
+            }
+
+            await _artigoRepository
+                .RemoverPorArquivoImportacaoAsync(arquivoImportacaoId);
+
+            await _arquivoRepository
+                .RemoverAsync(arquivo);
         }
     }
 }
