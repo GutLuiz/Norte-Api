@@ -15,5 +15,7 @@ namespace UepaMed.Application.Interfaces
             int usuarioConvidadoId);
 
         Task SalvarAsync();
+
+       
     }
 }

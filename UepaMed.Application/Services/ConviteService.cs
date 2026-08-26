@@ -116,5 +116,78 @@ namespace UepaMed.Application.Services
 
 
         }
+        public async Task AceitarConviteAsync(int conviteId)
+        {
+            var usuarioIdClaim = _httpContextAccessor.HttpContext?
+                .User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(usuarioIdClaim, out var usuarioId))
+                throw new UnauthorizedAccessException("Usuário não autenticado.");
+
+            var convite = await _conviteRevisaoRepository
+                .ObterPorIdAsync(conviteId);
+
+            if (convite == null)
+                throw new KeyNotFoundException("Convite não encontrado.");
+
+            if (convite.UsuarioConvidadoId != usuarioId)
+                throw new UnauthorizedAccessException(
+                    "Este convite não pertence ao usuário autenticado.");
+
+            if (convite.Status != StatusConviteRevisao.Pendente)
+                throw new InvalidOperationException(
+                    "Este convite já foi respondido.");
+
+            var jaEhMembro = await _revisaoMembroRepository
+                .ExisteMembroAsync(convite.RevisaoId, usuarioId);
+
+            if (jaEhMembro)
+                throw new InvalidOperationException(
+                    "Você já é membro desta revisão.");
+
+            var membro = new RevisaoMembro
+            {
+                RevisaoId = convite.RevisaoId,
+                UsuarioId = usuarioId,
+                Papel = PapelMembroRevisao.Revisor,
+                CriadoEm = DateTime.UtcNow
+            };
+
+            await _revisaoMembroRepository.AdicionarAsync(membro);
+
+            convite.Status = StatusConviteRevisao.Aceito;
+            convite.RespondidoEm = DateTime.UtcNow;
+
+            await _conviteRevisaoRepository.SalvarAsync();
+        }
+        public async Task RecusarConviteAsync(int conviteId)
+        {
+            var usuarioIdClaim = _httpContextAccessor.HttpContext?
+                .User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(usuarioIdClaim, out var usuarioId))
+                throw new UnauthorizedAccessException("Usuário não autenticado.");
+
+            var convite = await _conviteRevisaoRepository
+                .ObterPorIdAsync(conviteId);
+
+            if (convite == null)
+                throw new KeyNotFoundException("Convite não encontrado.");
+
+            if (convite.UsuarioConvidadoId != usuarioId)
+                throw new UnauthorizedAccessException(
+                    "Este convite não pertence ao usuário autenticado.");
+
+            if (convite.Status != StatusConviteRevisao.Pendente)
+                throw new InvalidOperationException(
+                    "Este convite já foi respondido.");
+
+            convite.Status = StatusConviteRevisao.Recusado;
+            convite.RespondidoEm = DateTime.UtcNow;
+
+            await _conviteRevisaoRepository.SalvarAsync();
+        }
     }
 }

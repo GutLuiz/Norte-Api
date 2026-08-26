@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using UepaMed.Application.Dtos;
 using UepaMed.Application.DTOs;
 using UepaMed.Application.Interfaces;
 using UepaMed.Domain.Entities;
@@ -72,17 +73,19 @@ namespace UepaMed.Application.Services
                 throw new UnauthorizedAccessException("Usuário não autenticado.");
             }
 
-            var revisoes = await _revisaoRepository
-                .ListarPorUsuarioAsync(usuarioId);
+            var membros = await _revisaoMembroRepository
+                .ListarRevisoesDoUsuarioAsync(usuarioId);
 
-            return revisoes.Select(r => new RevisaoListaDto
+            return membros.Select(m => new RevisaoListaDto
             {
-                Id = r.Id,
-                Titulo = r.Titulo,
-                Tipo = r.Tipo,
-                Dominio = r.Dominio,
-                Descricao = r.Descricao,
-                DataCriacao = r.DataCriacao
+                Id = m.Revisao.Id,
+                Titulo = m.Revisao.Titulo,
+                Tipo = m.Revisao.Tipo,
+                Dominio = m.Revisao.Dominio,
+                Descricao = m.Revisao.Descricao,
+                DataCriacao = m.Revisao.DataCriacao,
+
+                Papel = m.Papel
             }).ToList();
         }
         public async Task<Revisao?> AtualizarRevisao(int id, AtualizarRevisaoDto dto)
@@ -139,6 +142,37 @@ namespace UepaMed.Application.Services
             await _revisaoRepository.SalvarAsync();
 
             return true;
+        }
+
+        public async Task<List<RevisaoMembroDto>> ListarMembrosAsync(
+          int revisaoId,
+          int usuarioId)
+        {
+            var pertenceARevisao =
+                await _revisaoMembroRepository.ExisteMembroAsync(
+                    revisaoId,
+                    usuarioId
+                );
+
+            if (!pertenceARevisao)
+            {
+                throw new UnauthorizedAccessException(
+                    "Usuário não pertence a esta revisão."
+                );
+            }
+
+            var membros =
+                await _revisaoMembroRepository.ListarMembrosDaRevisaoAsync(
+                    revisaoId
+                );
+
+            return membros.Select(m => new RevisaoMembroDto
+            {
+                UsuarioId = m.UsuarioId,
+                Nome = m.Usuario.Nome,
+                Email = m.Usuario.Email,
+                Papel = m.Papel
+            }).ToList();
         }
 
 

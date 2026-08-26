@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using UepaMed.Application.DTOs;
 using UepaMed.Application.Services;
 
@@ -11,10 +12,12 @@ namespace UepaMed.Controllers
     public class RevisoesController : ControllerBase
     {
         private readonly RevisaoService _revisaoService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public RevisoesController(RevisaoService revisaoService)
+        public RevisoesController(RevisaoService revisaoService, IHttpContextAccessor httpContextAccessor)
         {
             _revisaoService = revisaoService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpPost]
@@ -30,12 +33,35 @@ namespace UepaMed.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Listar()
+        public async Task<IActionResult> ListarRevisoes()
         {
             var revisoes = await _revisaoService.ListarAsync();
 
             return Ok(revisoes);
         }
+
+        [HttpGet("{revisaoId}/membros")]
+        public async Task<IActionResult> ListarMembros(int revisaoId)
+        {
+            var usuarioIdClaim = _httpContextAccessor.HttpContext?
+                .User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(usuarioIdClaim, out var usuarioId))
+            {
+                return Unauthorized();
+            }
+
+                var membros =
+                    await _revisaoService.ListarMembrosAsync(
+                        revisaoId,
+                        usuarioId
+                    );
+
+                return Ok(membros);
+        }
+           
+        
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Atualizar(

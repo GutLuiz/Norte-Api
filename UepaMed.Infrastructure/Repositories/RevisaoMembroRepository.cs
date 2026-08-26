@@ -46,5 +46,20 @@ namespace UepaMed.Infrastructure.Repositories
                     rm.UsuarioId == usuarioId &&
                     rm.Papel == PapelMembroRevisao.Proprietario);
         }
+        public async Task<List<RevisaoMembro>> ListarRevisoesDoUsuarioAsync(int usuarioId)
+        {
+            return await _context.RevisoesMembro
+                .Where(rm => rm.UsuarioId == usuarioId)
+                .Include(rm => rm.Revisao)
+                .ToListAsync();
+        }
+
+        public async Task<List<RevisaoMembro>> ListarMembrosDaRevisaoAsync(int revisaoId)
+        {
+            return await _context.RevisoesMembro
+                .Where(rm => rm.RevisaoId == revisaoId)
+                .Include(rm => rm.Usuario)
+                .ToListAsync();
+        }
     }
 }

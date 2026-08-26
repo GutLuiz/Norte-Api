@@ -18,6 +18,7 @@ namespace UepaMed.Application.DTOs
         public DominioRevisao Dominio { get; set; }
         public string? Descricao { get; set; }
         public DateTime DataCriacao { get; set; }
+        public PapelMembroRevisao Papel { get; set; }
     }
 
     public class AtualizarRevisaoDto

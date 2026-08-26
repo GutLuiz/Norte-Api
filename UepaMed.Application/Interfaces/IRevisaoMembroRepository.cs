@@ -10,5 +10,9 @@ namespace UepaMed.Application.Interfaces
         Task<bool> ExisteMembroAsync(int revisaoId, int usuarioId);
 
         Task<bool> EhProprietarioAsync(int revisaoId, int usuarioId);
+
+        Task<List<RevisaoMembro>> ListarRevisoesDoUsuarioAsync(int usuarioId);
+        Task<List<RevisaoMembro>> ListarMembrosDaRevisaoAsync(int revisaoId);
+
     }
 }

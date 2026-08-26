@@ -37,5 +37,27 @@ namespace UepaMed.Controllers
 
             return Ok(convites);
         }
+
+        [HttpPost("/api/convites/{conviteId}/aceitar")]
+        public async Task<IActionResult> AceitarConvite(int conviteId)
+        {
+            await _service.AceitarConviteAsync(conviteId);
+
+            return Ok(new
+            {
+                mensagem = "Convite aceito com sucesso."
+            });
+        }
+
+        [HttpPost("/api/convites/{conviteId}/recusar")]
+        public async Task<IActionResult> RecusarConvite(int conviteId)
+        {
+            await _service.RecusarConviteAsync(conviteId);
+
+            return Ok(new
+            {
+                mensagem = "Convite recusado com sucesso."
+            });
+        }
     }
 }
