@@ -20,6 +20,7 @@ builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<RevisaoService>();
 builder.Services.AddScoped<IRevisaoRepository, RevisaoRepository>();
 builder.Services.AddScoped<IImportadorArtigos, NbibImportador>();
+builder.Services.AddScoped<IImportadorArtigos, RisImportador>();
 builder.Services.AddScoped<IArtigoRepository, ArtigoRepository>();
 builder.Services.AddScoped<ImportacaoArtigosService>();
 builder.Services.AddScoped< IArquivoImportacaoRepository,ArquivoImportacaoRepository>();
@@ -27,6 +28,12 @@ builder.Services.AddScoped<IRevisaoMembroRepository, RevisaoMembroRepository>();
 builder.Services.AddScoped<IConviteRevisaoRepository,ConviteRevisaoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ConviteRevisaoService>();
+
+builder.Services.AddScoped<
+    IDuplicidadeRepository,
+    DuplicidadeRepository>();
+
+builder.Services.AddScoped<DuplicidadeService>();
 
 
 builder.Services.AddCors(options =>

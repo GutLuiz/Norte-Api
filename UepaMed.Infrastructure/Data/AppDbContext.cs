@@ -14,6 +14,7 @@ namespace UepaMed.Infrastructure.Data
         public DbSet<Artigo> Artigos => Set<Artigo>();
         public DbSet<ArquivoImportacao> ArquivosImportacao { get; set; }
         public DbSet<ConviteRevisao> ConvitesRevisao { get; set; }
+        public DbSet<DuplicidadeIgnorada> DuplicidadesIgnoradas { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Usuario>()

@@ -1,31 +1,49 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UepaMed.Application.Services;
-using UepaMed.Domain.Enums;
 
 namespace UepaMed.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/revisoes/{revisaoId}/importacoes")]
+    [Route("api/revisoes/{revisaoId:int}/importacoes")]
     public class ArquivosController : ControllerBase
     {
         private readonly ImportacaoArtigosService _service;
 
-        public ArquivosController(ImportacaoArtigosService service)
+        public ArquivosController(
+            ImportacaoArtigosService service)
         {
             _service = service;
         }
 
         [HttpPost]
-        public async Task<IActionResult> ImportarArquivos(
+        public async Task<IActionResult> ImportarArquivo(
             int revisaoId,
-            IFormFile arquivo)
+            [FromForm] IFormFile arquivo)
         {
             if (arquivo == null || arquivo.Length == 0)
-                return BadRequest("Arquivo não enviado.");
+            {
+                return BadRequest(
+                    "Arquivo não enviado.");
+            }
 
-            await using var stream = arquivo.OpenReadStream();
+            var extensao = Path
+                .GetExtension(arquivo.FileName)
+                .ToLowerInvariant();
+
+            var formatoPermitido =
+                extensao == ".nbib" ||
+                extensao == ".ris";
+
+            if (!formatoPermitido)
+            {
+                return BadRequest(
+                    "Formato não suportado. Envie um arquivo .nbib ou .ris.");
+            }
+
+            await using var stream =
+                arquivo.OpenReadStream();
 
             var artigos = await _service.ImportarAsync(
                 revisaoId,
@@ -35,45 +53,34 @@ namespace UepaMed.Controllers
             return Ok(new
             {
                 mensagem = "Arquivo importado com sucesso.",
-                quantidadeArtigos = artigos.Count,
+                nomeArquivo = arquivo.FileName,
+                formato = extensao,
+                quantidadeArtigos = artigos.Count
             });
         }
+
         [HttpGet]
-        public async Task<IActionResult> ListarArquivos(int revisaoId)
+        public async Task<IActionResult> ListarArquivos(
+            int revisaoId)
         {
-            var importacoes = await _service.ListarArquivosAsync(revisaoId);
+            var importacoes = await _service
+                .ListarArquivosAsync(revisaoId);
 
             return Ok(importacoes);
         }
 
-        //[HttpGet("artigos")]
-        //public async Task<IActionResult> ListarArtigos(int revisaoId)
-        //{
-        //    var importacoes = await _service.ListarArtigosAsync(revisaoId);
-
-        //    return Ok(importacoes);
-        //}
-
-        //[HttpPut("{artigoId}/status")]
-        //public async Task<IActionResult> MudarStatusArtigo(
-        //int artigoId,
-        //[FromBody] StatusArtigo status)
-        //{
-        //    await _service.MudarStatusArtigo(artigoId, status);
-
-        //    return NoContent();
-        //}
-
-        [HttpDelete("{arquivoImportacaoId}")]
-        public async Task<IActionResult> RemoverArquivos(
+        [HttpDelete("{arquivoImportacaoId:int}")]
+        public async Task<IActionResult> RemoverArquivo(
             int revisaoId,
             int arquivoImportacaoId)
         {
-            await _service.RemoverAsync(arquivoImportacaoId);
+            await _service.RemoverAsync(
+                arquivoImportacaoId);
 
             return Ok(new
             {
-                mensagem = "Arquivo e artigos relacionados removidos com sucesso."
+                mensagem =
+                    "Arquivo e artigos relacionados removidos com sucesso."
             });
         }
     }

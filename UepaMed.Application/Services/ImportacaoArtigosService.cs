@@ -7,61 +7,69 @@ namespace UepaMed.Application.Services
 {
     public class ImportacaoArtigosService
     {
-        private readonly IImportadorArtigos _importador;
+        private readonly IEnumerable<IImportadorArtigos> _importadores;
         private readonly IArquivoImportacaoRepository _arquivoRepository;
         private readonly IArtigoRepository _artigoRepository;
 
         public ImportacaoArtigosService(
-          IImportadorArtigos importador,
-          IArquivoImportacaoRepository arquivoRepository,
-          IArtigoRepository artigoRepository)
+            IEnumerable<IImportadorArtigos> importadores,
+            IArquivoImportacaoRepository arquivoRepository,
+            IArtigoRepository artigoRepository)
         {
-            _importador = importador;
+            _importadores = importadores;
             _arquivoRepository = arquivoRepository;
             _artigoRepository = artigoRepository;
         }
+
         public async Task<List<Artigo>> ImportarAsync(
             int revisaoId,
             Stream arquivo,
             string nomeArquivo)
         {
-            var extensao = Path.GetExtension(nomeArquivo);
+            var extensao = Path
+                .GetExtension(nomeArquivo)
+                .ToLowerInvariant();
 
-            if (!_importador.Suporta(extensao))
+            var importador = _importadores
+                .FirstOrDefault(i => i.Suporta(extensao));
+
+            if (importador == null)
             {
                 throw new ArgumentException(
-                    $"O arquivo {nomeArquivo} não é suportado.");
+                    $"O formato {extensao} não é suportado.");
             }
 
-            var artigos = await _importador.ImportarAsync(arquivo);
-
-            foreach (var artigo in artigos)
-            {
-                artigo.RevisaoId = revisaoId;
-            }
+            var artigos = await importador
+                .ImportarAsync(arquivo);
 
             var arquivoImportacao = new ArquivoImportacao
             {
                 RevisaoId = revisaoId,
                 NomeArquivo = nomeArquivo,
-                TipoArquivo = TipoArquivoImportacao.NBIB,
+                TipoArquivo = ObterTipoArquivo(extensao),
                 QuantidadeArtigos = artigos.Count,
                 DataImportacao = DateTime.UtcNow
             };
 
-            await _arquivoRepository.AdicionarAsync(arquivoImportacao);
+            await _arquivoRepository
+                .AdicionarAsync(arquivoImportacao);
 
             foreach (var artigo in artigos)
             {
-                artigo.ArquivoImportacaoId = arquivoImportacao.Id;
+                artigo.RevisaoId = revisaoId;
 
-                await _artigoRepository.AdicionarAsync(artigo);
+                artigo.ArquivoImportacaoId =
+                    arquivoImportacao.Id;
+
+                await _artigoRepository
+                    .AdicionarAsync(artigo);
             }
 
             return artigos;
         }
 
-        public async Task<List<ArquivosListaDto>> ListarArquivosAsync(int revisaoId)
+        public async Task<List<ArquivosListaDto>>
+            ListarArquivosAsync(int revisaoId)
         {
             var arquivos = await _arquivoRepository
                 .ListarArquivosPorRevisao(revisaoId);
@@ -71,38 +79,47 @@ namespace UepaMed.Application.Services
 
             return arquivos.Select(arquivo =>
             {
-                var status = contagens
-                    .FirstOrDefault(c => c.ArquivoImportacaoId == arquivo.Id);
+                var status = contagens.FirstOrDefault(c =>
+                    c.ArquivoImportacaoId == arquivo.Id);
 
                 return new ArquivosListaDto
                 {
                     Id = arquivo.Id,
                     NomeArquivo = arquivo.NomeArquivo,
-                    QuantidadeArtigos = arquivo.QuantidadeArtigos,
+                    QuantidadeArtigos =
+                        arquivo.QuantidadeArtigos,
                     TipoArquivo = arquivo.TipoArquivo,
 
-                    QuantidadeIncluidos = status?.QuantidadeIncluidos ?? 0,
-                    QuantidadePendentes = status?.QuantidadePendentes ?? 0,
-                    QuantidadeExcluidos = status?.QuantidadeExcluidos ?? 0
+                    QuantidadeIncluidos =
+                        status?.QuantidadeIncluidos ?? 0,
+
+                    QuantidadePendentes =
+                        status?.QuantidadePendentes ?? 0,
+
+                    QuantidadeExcluidos =
+                        status?.QuantidadeExcluidos ?? 0
                 };
             }).ToList();
         }
 
-        public async Task<List<Artigo>> ListarArtigosAsync(int revisaoId)
+        public async Task<List<Artigo>>
+            ListarArtigosAsync(int revisaoId)
         {
-            return await _artigoRepository.ObterPorRevisaoAsync(revisaoId);
+            return await _artigoRepository
+                .ObterPorRevisaoAsync(revisaoId);
         }
 
         public async Task MudarStatusArtigo(
-        int artigoId,
-        StatusArtigo status)
+            int artigoId,
+            StatusArtigo status)
         {
             await _artigoRepository.MudarStatusAsync(
                 artigoId,
                 status);
         }
 
-        public async Task RemoverAsync(int arquivoImportacaoId)
+        public async Task RemoverAsync(
+            int arquivoImportacaoId)
         {
             var arquivo = await _arquivoRepository
                 .ObterPorIdAsync(arquivoImportacaoId);
@@ -111,14 +128,27 @@ namespace UepaMed.Application.Services
             {
                 throw new KeyNotFoundException(
                     "Arquivo de importação não encontrado.");
-
             }
 
             await _artigoRepository
-                .RemoverPorArquivoImportacaoAsync(arquivoImportacaoId);
+                .RemoverPorArquivoImportacaoAsync(
+                    arquivoImportacaoId);
 
             await _arquivoRepository
                 .RemoverAsync(arquivo);
+        }
+
+        private static TipoArquivoImportacao
+            ObterTipoArquivo(string extensao)
+        {
+            return extensao switch
+            {
+                ".nbib" => TipoArquivoImportacao.NBIB,
+                ".ris" => TipoArquivoImportacao.RIS,
+
+                _ => throw new ArgumentException(
+                    $"O formato {extensao} não é suportado.")
+            };
         }
     }
 }
