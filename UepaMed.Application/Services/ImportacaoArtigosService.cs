@@ -1,7 +1,10 @@
-﻿using UepaMed.Application.Dtos;
-using UepaMed.Application.Interfaces;
-using UepaMed.Domain.Entities;
+﻿using UepaMed.Application.Dtos.importacao;
+using UepaMed.Application.Interfaces.Arquivos;
+using UepaMed.Application.Interfaces.Artigos;
+using UepaMed.Domain.Entities.Arquivos;
+using UepaMed.Domain.Entities.Artigos;
 using UepaMed.Domain.Enums;
+using UepaMed.Domain.Enums.Arquivos;
 
 namespace UepaMed.Application.Services
 {

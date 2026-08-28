@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using UepaMed.Application.DTOs;
+using UepaMed.Application.Dtos.Revisao;
 using UepaMed.Application.Services;
 
 namespace UepaMed.Controllers

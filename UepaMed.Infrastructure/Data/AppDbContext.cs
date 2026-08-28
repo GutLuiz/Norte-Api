@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UepaMed.Domain.Entities;
+using UepaMed.Domain.Entities.Arquivos;
+using UepaMed.Domain.Entities.Artigos;
+using UepaMed.Domain.Entities.Revisoes;
+using UepaMed.Domain.Entities.Usuarios;
 
 namespace UepaMed.Infrastructure.Data
 {

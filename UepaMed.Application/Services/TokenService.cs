@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using UepaMed.Domain.Entities;
+using UepaMed.Domain.Entities.Usuarios;
 
 namespace UepaMed.Application.Services
 {

@@ -1,9 +1,9 @@
 ﻿using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
-using UepaMed.Application.Dtos;
-using UepaMed.Application.Interfaces;
-using UepaMed.Domain.Entities;
+using UepaMed.Application.Dtos.Artigos;
+using UepaMed.Application.Interfaces.Artigos;
+using UepaMed.Domain.Entities.Artigos;
 using UepaMed.Domain.Enums;
 
 namespace UepaMed.Application.Services

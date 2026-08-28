@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UepaMed.Application.Dtos;
+using UepaMed.Application.Dtos.Convite;
 using UepaMed.Application.Services;
 
 namespace UepaMed.Controllers

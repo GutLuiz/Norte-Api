@@ -1,6 +1,6 @@
-﻿using UepaMed.Application.Interfaces;
-using UepaMed.Domain.Entities;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using UepaMed.Application.Interfaces.Artigos;
+using UepaMed.Domain.Entities.Artigos;
 
 namespace UepaMed.Infrastructure.Importers
 {

@@ -3,11 +3,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
-using UepaMed.Application.Interfaces;
+using UepaMed.Application.Interfaces.Arquivos;
+using UepaMed.Application.Interfaces.Artigos;
+using UepaMed.Application.Interfaces.Convites;
+using UepaMed.Application.Interfaces.Revisoes;
+using UepaMed.Application.Interfaces.Usuarios;
 using UepaMed.Application.Services;
 using UepaMed.Infrastructure.Data;
 using UepaMed.Infrastructure.Importers;
-using UepaMed.Infrastructure.Repositories;
+using UepaMed.Infrastructure.Repositories.Arquivos;
+using UepaMed.Infrastructure.Repositories.Artigos;
+using UepaMed.Infrastructure.Repositories.Revisoes;
+using UepaMed.Infrastructure.Repositories.Usuarios;
 
 var builder = WebApplication.CreateBuilder(args);
 

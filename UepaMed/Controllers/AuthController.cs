@@ -2,8 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using UepaMed.Infrastructure.Data;
 using UepaMed.Domain.Entities;
-using UepaMed.Application.DTOs;
 using UepaMed.Application.Services;
+using UepaMed.Application.Dtos.Usuario;
+using UepaMed.Domain.Entities.Usuarios;
 
 namespace UepaMed.Controllers
 {

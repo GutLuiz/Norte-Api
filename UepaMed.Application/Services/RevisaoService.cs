@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using UepaMed.Application.Dtos;
-using UepaMed.Application.DTOs;
-using UepaMed.Application.Interfaces;
+using UepaMed.Application.Dtos.Revisao;
+using UepaMed.Application.Interfaces.Revisoes;
 using UepaMed.Domain.Entities;
-using UepaMed.Domain.Enums;
+using UepaMed.Domain.Entities.Revisoes;
+using UepaMed.Domain.Enums.Revisoes;
 
 namespace UepaMed.Application.Services
 {
