@@ -3,6 +3,7 @@ using UepaMed.Domain.Entities.Arquivos;
 using UepaMed.Domain.Entities.Artigos;
 using UepaMed.Domain.Entities.Revisoes;
 using UepaMed.Domain.Entities.Usuarios;
+using UepaMed.Domain.Entities.Votacoes;
 
 namespace UepaMed.Infrastructure.Data
 {
@@ -18,6 +19,12 @@ namespace UepaMed.Infrastructure.Data
         public DbSet<ArquivoImportacao> ArquivosImportacao { get; set; }
         public DbSet<ConviteRevisao> ConvitesRevisao { get; set; }
         public DbSet<DuplicidadeIgnorada> DuplicidadesIgnoradas { get; set; }
+        public DbSet<Votacao> Votacoes { get; set; }
+
+        public DbSet<Voto> Votos { get; set; }
+
+        public DbSet<ConflitoVotacao> ConflitosVotacao { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Usuario>()
@@ -64,9 +71,92 @@ namespace UepaMed.Infrastructure.Data
                     c.Status
                 });
             });
+            modelBuilder.Entity<Votacao>(entity =>
+            {
+                entity.HasKey(v => v.Id);
+
+                entity.Property(v => v.Status)
+                    .HasConversion<int>()
+                    .IsRequired();
+
+                entity.Property(v => v.DataInicio);
+
+                entity.Property(v => v.DataFinalizacao);
+
+                entity.HasIndex(v => v.RevisaoId);
+
+                entity.HasOne<Revisao>()
+                    .WithMany()
+                    .HasForeignKey(v => v.RevisaoId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(v => v.Votos)
+                    .WithOne(v => v.Votacao)
+                    .HasForeignKey(v => v.VotacaoId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(v => v.Conflitos)
+                    .WithOne(c => c.Votacao)
+                    .HasForeignKey(c => c.VotacaoId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Voto>(entity =>
+            {
+                entity.HasKey(v => v.Id);
+
+                entity.Property(v => v.Opcao)
+                    .HasConversion<int>()
+                    .IsRequired();
+
+                entity.Property(v => v.DataRegistro)
+                    .IsRequired();
+
+                entity.HasIndex(v => new
+                {
+                    v.VotacaoId,
+                    v.ArtigoId,
+                    v.UsuarioId
+                })
+                .IsUnique();
+
+                entity.HasOne(v => v.Artigo)
+                    .WithMany()
+                    .HasForeignKey(v => v.ArtigoId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<ConflitoVotacao>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+
+                entity.Property(c => c.Motivo)
+                    .HasConversion<int>()
+                    .IsRequired();
+
+                entity.Property(c => c.DecisaoFinal)
+                    .HasConversion<int>();
+
+                entity.Property(c => c.Resolvido)
+                    .IsRequired();
+
+                entity.Property(c => c.DataCriacao)
+                    .IsRequired();
+
+                entity.Property(c => c.DataResolucao);
+
+                entity.HasIndex(c => new
+                {
+                    c.VotacaoId,
+                    c.ArtigoId
+                })
+                .IsUnique();
+
+                entity.HasOne(c => c.Artigo)
+                    .WithMany()
+                    .HasForeignKey(c => c.ArtigoId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
-
-
-
     }
 }

@@ -29,6 +29,14 @@ namespace UepaMed.Infrastructure.Repositories.Artigos
                 .ToListAsync();
         }
 
+        public async Task<Artigo?> ObterPorIdAsync(
+        int artigoId)
+        {
+            return await _context.Artigos
+                .FirstOrDefaultAsync(a =>
+                    a.Id == artigoId);
+        }
+
         public async Task MudarStatusAsync(
          int artigoId,
          StatusArtigo status)

@@ -8,13 +8,15 @@ using UepaMed.Application.Interfaces.Artigos;
 using UepaMed.Application.Interfaces.Convites;
 using UepaMed.Application.Interfaces.Revisoes;
 using UepaMed.Application.Interfaces.Usuarios;
-using UepaMed.Application.Services;
 using UepaMed.Infrastructure.Data;
 using UepaMed.Infrastructure.Importers;
 using UepaMed.Infrastructure.Repositories.Arquivos;
 using UepaMed.Infrastructure.Repositories.Artigos;
 using UepaMed.Infrastructure.Repositories.Revisoes;
 using UepaMed.Infrastructure.Repositories.Usuarios;
+using UepaMed.Application.Interfaces.Votacoes;
+using UepaMed.Infrastructure.Repositories.Votacoes;
+using UepaMed.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +37,8 @@ builder.Services.AddScoped<IRevisaoMembroRepository, RevisaoMembroRepository>();
 builder.Services.AddScoped<IConviteRevisaoRepository,ConviteRevisaoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ConviteRevisaoService>();
+builder.Services.AddScoped<IVotacaoRepository,VotacaoRepository>();
+builder.Services.AddScoped<VotacaoService>();
 
 builder.Services.AddScoped<
     IDuplicidadeRepository,
@@ -91,23 +95,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-//var caminho = @"C:\teste\pubmed-outcomesty-set.nbib";
-
-//using var arquivo = File.OpenRead(caminho);
-
-//var importador = new NbibImportador();
-
-//var artigos = await importador.ImportarAsync(arquivo);
-
-//foreach (var artigo in artigos)
-//{
-//    Console.WriteLine($"PMID: {artigo.PMID}");
-//    Console.WriteLine($"Título: {artigo.Titulo}");
-//    Console.WriteLine($"Resumo: {artigo.Resumo}");
-//    Console.WriteLine($"Revista: {artigo.Revista}");
-//    Console.WriteLine($"Autores: {artigo.Autores}");
-//    Console.WriteLine($"DOI: {artigo.DOI}");
-//    Console.WriteLine($"Ano: {artigo.AnoPublicacao}");
-//    Console.WriteLine("-----------------------------------");
-//}
 app.Run();

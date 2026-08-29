@@ -9,8 +9,8 @@ namespace UepaMed.Application.Interfaces.Artigos
         Task AdicionarAsync(Artigo artigo);
 
         Task<List<Artigo>> ObterPorRevisaoAsync(int revisaoId);
+        Task<Artigo?> ObterPorIdAsync(int artigoId);
 
-      
         Task<List<ContagemStatusArquivoDto>>ListarContagemStatusPorArquivoAsync(int revisaoId);
         
 
