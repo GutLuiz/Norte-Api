@@ -41,6 +41,15 @@ namespace UepaMed.Application.Services
                     "Esta revisão já possui uma votação ativa.");
             }
 
+            var artigos = await _artigoRepository
+            .ObterPorRevisaoAsync(dto.RevisaoId);
+
+            if (artigos.Count == 0)
+            {
+                throw new InvalidOperationException(
+                    "Não é possível iniciar a votação porque a revisão não possui artigos.");
+            }
+
             var votacao = new Votacao(
                 dto.RevisaoId);
 
@@ -107,6 +116,42 @@ namespace UepaMed.Application.Services
             }
 
             return MapearVotacao(votacao);
+        }
+        public async Task<List<VotoRespostaDto>>
+        ObterMeusVotosAsync(
+            int votacaoId,
+            int usuarioId)
+        {
+            if (votacaoId <= 0)
+            {
+                throw new ArgumentException(
+                    "O identificador da votação é inválido.",
+                    nameof(votacaoId));
+            }
+
+            if (usuarioId <= 0)
+            {
+                throw new ArgumentException(
+                    "O identificador do usuário é inválido.",
+                    nameof(usuarioId));
+            }
+
+            var votacao = await _votacaoRepository
+                .ObterPorIdAsync(votacaoId);
+
+            if (votacao == null)
+            {
+                throw new KeyNotFoundException(
+                    "Votação não encontrada.");
+            }
+
+            return votacao.Votos
+                .Where(voto =>
+                    voto.UsuarioId == usuarioId)
+                .OrderBy(voto =>
+                    voto.ArtigoId)
+                .Select(MapearVoto)
+                .ToList();
         }
 
         public async Task<VotacaoRespostaDto?>

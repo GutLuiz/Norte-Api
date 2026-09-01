@@ -5,6 +5,7 @@ using UepaMed.Domain.Entities.Arquivos;
 using UepaMed.Domain.Entities.Artigos;
 using UepaMed.Domain.Enums;
 using UepaMed.Domain.Enums.Arquivos;
+using UepaMed.Application.Interfaces.Votacoes;
 
 namespace UepaMed.Application.Services
 {
@@ -13,15 +14,18 @@ namespace UepaMed.Application.Services
         private readonly IEnumerable<IImportadorArtigos> _importadores;
         private readonly IArquivoImportacaoRepository _arquivoRepository;
         private readonly IArtigoRepository _artigoRepository;
+        private readonly IVotacaoRepository _votacaoRepository;
 
         public ImportacaoArtigosService(
             IEnumerable<IImportadorArtigos> importadores,
             IArquivoImportacaoRepository arquivoRepository,
-            IArtigoRepository artigoRepository)
+            IArtigoRepository artigoRepository,
+            IVotacaoRepository votacaoRepository)
         {
             _importadores = importadores;
             _arquivoRepository = arquivoRepository;
             _artigoRepository = artigoRepository;
+            _votacaoRepository = votacaoRepository;
         }
 
         public async Task<List<Artigo>> ImportarAsync(
@@ -35,6 +39,15 @@ namespace UepaMed.Application.Services
 
             var importador = _importadores
                 .FirstOrDefault(i => i.Suporta(extensao));
+
+            var votacaoAtiva = await _votacaoRepository
+            .ObterAtivaPorRevisaoAsync(revisaoId);
+
+            if (votacaoAtiva != null)
+            {
+                throw new InvalidOperationException(
+                    "Não é possível importar artigos enquanto a revisão está em votação.");
+            }
 
             if (importador == null)
             {

@@ -1,4 +1,6 @@
-﻿using UepaMed.Domain.Enums.Votacao;
+﻿using UepaMed.Domain.Enums;
+using UepaMed.Domain.Enums.Votacao;
+
 
 namespace UepaMed.Domain.Entities.Votacoes
 {
@@ -84,6 +86,56 @@ namespace UepaMed.Domain.Entities.Votacoes
             Votos.Add(voto);
 
             return voto;
+        }
+
+        public StatusArtigo? ApurarArtigo(
+        int artigoId)
+        {
+            if (Status != StatusVotacao.EmAndamento)
+            {
+                throw new InvalidOperationException(
+                    "A votação não está em andamento.");
+            }
+
+            var votosDoArtigo = Votos
+                .Where(v => v.ArtigoId == artigoId)
+                .ToList();
+
+            if (!votosDoArtigo.Any())
+            {
+                throw new InvalidOperationException(
+                    "O artigo ainda não possui votos.");
+            }
+
+            var quantidadeIncluir = votosDoArtigo.Count(v =>
+                v.Opcao == OpcaoVoto.Incluir);
+
+            var quantidadeExcluir = votosDoArtigo.Count(v =>
+                v.Opcao == OpcaoVoto.Excluir);
+
+            if (quantidadeIncluir > quantidadeExcluir)
+            {
+                return StatusArtigo.Incluido;
+            }
+
+            if (quantidadeExcluir > quantidadeIncluir)
+            {
+                return StatusArtigo.Excluido;
+            }
+
+            var todosSeAbstiveram =
+                quantidadeIncluir == 0 &&
+                quantidadeExcluir == 0;
+
+            var motivoConflito = todosSeAbstiveram
+                ? MotivoConflito.TodosSeAbstiveram
+                : MotivoConflito.Empate;
+
+            AdicionarConflito(
+                artigoId,
+                motivoConflito);
+
+            return null;
         }
 
         public ConflitoVotacao AdicionarConflito(

@@ -88,7 +88,7 @@ namespace UepaMed.Infrastructure.Data
                 entity.HasOne<Revisao>()
                     .WithMany()
                     .HasForeignKey(v => v.RevisaoId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasMany(v => v.Votos)
                     .WithOne(v => v.Votacao)

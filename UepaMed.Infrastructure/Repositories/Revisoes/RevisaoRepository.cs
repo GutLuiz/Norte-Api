@@ -34,13 +34,20 @@ namespace UepaMed.Infrastructure.Repositories.Revisoes
                     r.UsuarioId == usuarioId);
         }
 
-        public async Task RemoverAsync(Revisao revisao)
+        public async Task RemoverAsync(
+       Revisao revisao)
         {
-            _context.Revisoes.Remove(revisao);
+            var votacoes = await _context.Votacoes
+                .Where(votacao =>
+                    votacao.RevisaoId == revisao.Id)
+                .ToListAsync();
 
-            await Task.CompletedTask;
+            _context.Votacoes.RemoveRange(
+                votacoes);
+
+            _context.Revisoes.Remove(
+                revisao);
         }
-
         public async Task SalvarAsync()
         {
             await _context.SaveChangesAsync();

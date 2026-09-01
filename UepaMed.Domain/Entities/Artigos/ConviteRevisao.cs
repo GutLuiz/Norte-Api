@@ -13,6 +13,8 @@ namespace UepaMed.Domain.Entities.Artigos
         public int UsuarioConvidadoId { get; set; }
 
         public int ConvidadoPorUsuarioId { get; set; }
+        public PapelMembroRevisao Papel { get; set; }
+    = PapelMembroRevisao.Revisor;
 
         public StatusConviteRevisao Status { get; set; }
             = StatusConviteRevisao.Pendente;

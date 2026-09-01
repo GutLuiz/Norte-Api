@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using UepaMed.Application.Dtos.Votacoes;
 using UepaMed.Application.Services;
 
@@ -111,6 +112,50 @@ namespace UepaMed.Controllers
                 });
             }
         }
+        [HttpGet("{votacaoId:int}/meus-votos")]
+        public async Task<ActionResult<List<VotoRespostaDto>>>
+        ObterMeusVotos(
+        int votacaoId)
+        {
+            var usuarioIdClaim = User
+                .FindFirst(ClaimTypes.NameIdentifier)?
+                .Value;
+
+            if (!int.TryParse(
+                usuarioIdClaim,
+                out var usuarioId))
+            {
+                return Unauthorized(new
+                {
+                    mensagem =
+                        "Não foi possível identificar o usuário autenticado."
+                });
+            }
+
+            try
+            {
+                var votos = await _votacaoService
+                    .ObterMeusVotosAsync(
+                        votacaoId,
+                        usuarioId);
+
+                return Ok(votos);
+            }
+            catch (KeyNotFoundException exception)
+            {
+                return NotFound(new
+                {
+                    mensagem = exception.Message
+                });
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(new
+                {
+                    mensagem = exception.Message
+                });
+            }
+        }
 
         [HttpGet("revisao/{revisaoId:int}/ativa")]
         public async Task<ActionResult<VotacaoRespostaDto>>
@@ -132,5 +177,7 @@ namespace UepaMed.Controllers
 
             return Ok(votacao);
         }
+
+
     }
 }

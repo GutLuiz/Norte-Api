@@ -2,7 +2,7 @@
 {
     public enum MotivoConflito
     {
-        VotosDivergentes = 1,
+        Empate = 1,
         TodosSeAbstiveram = 2
     }
 }

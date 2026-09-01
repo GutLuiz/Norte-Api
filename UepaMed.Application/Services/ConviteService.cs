@@ -7,6 +7,7 @@ using UepaMed.Application.Interfaces.Usuarios;
 using UepaMed.Domain.Entities.Artigos;
 using UepaMed.Domain.Entities.Revisoes;
 using UepaMed.Domain.Enums.Revisoes;
+using UepaMed.Application.Interfaces.Votacoes;
 
 
 namespace UepaMed.Application.Services
@@ -17,17 +18,20 @@ namespace UepaMed.Application.Services
         private readonly IRevisaoMembroRepository _revisaoMembroRepository;
         private readonly IConviteRevisaoRepository _conviteRevisaoRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IVotacaoRepository _votacaoRepository;
 
         public ConviteRevisaoService(
             IUsuarioRepository usuarioRepository,
             IRevisaoMembroRepository revisaoMembroRepository,
             IConviteRevisaoRepository conviteRevisaoRepository,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IVotacaoRepository votacaoRepository)
         {
             _usuarioRepository = usuarioRepository;
             _revisaoMembroRepository = revisaoMembroRepository;
             _conviteRevisaoRepository = conviteRevisaoRepository;
             _httpContextAccessor = httpContextAccessor;
+            _votacaoRepository = votacaoRepository;
         }
 
         public async Task CriarConviteAsync(
@@ -48,8 +52,15 @@ namespace UepaMed.Application.Services
                     usuarioAtualId);
 
             if (!ehProprietario)
+            {
                 throw new UnauthorizedAccessException(
                     "Somente o proprietário da revisão pode convidar membros.");
+            }
+
+            await GarantirQueRevisaoNaoEstaEmVotacaoAsync(
+                revisaoId);
+            var papel = ValidarPapelDoConvite(
+             dto.Papel);
 
             var usuarioConvidado = await _usuarioRepository
                 .BuscarPorEmailAsync(dto.Email);
@@ -85,6 +96,7 @@ namespace UepaMed.Application.Services
                 RevisaoId = revisaoId,
                 UsuarioConvidadoId = usuarioConvidado.Id,
                 ConvidadoPorUsuarioId = usuarioAtualId,
+                Papel = papel,
                 Status = StatusConviteRevisao.Pendente,
                 CriadoEm = DateTime.UtcNow
             };
@@ -113,8 +125,9 @@ namespace UepaMed.Application.Services
                 RevisaoId = c.RevisaoId,
                 TituloRevisao = c.Revisao.Titulo,
                 NomeProprietario = c.ConvidadoPorUsuario.Nome,
+                Papel = c.Papel.ToString(),
                 Status = c.Status.ToString(),
-                CriadoEm = c.CriadoEm
+                CriadoEm = c.CriadoEm,
             }).ToList();
 
 
@@ -142,6 +155,9 @@ namespace UepaMed.Application.Services
                 throw new InvalidOperationException(
                     "Este convite já foi respondido.");
 
+            await GarantirQueRevisaoNaoEstaEmVotacaoAsync(
+             convite.RevisaoId);
+
             var jaEhMembro = await _revisaoMembroRepository
                 .ExisteMembroAsync(convite.RevisaoId, usuarioId);
 
@@ -153,7 +169,8 @@ namespace UepaMed.Application.Services
             {
                 RevisaoId = convite.RevisaoId,
                 UsuarioId = usuarioId,
-                Papel = PapelMembroRevisao.Revisor,
+                Papel = ValidarPapelDoConvite(
+                convite.Papel),
                 CriadoEm = DateTime.UtcNow
             };
 
@@ -191,6 +208,43 @@ namespace UepaMed.Application.Services
             convite.RespondidoEm = DateTime.UtcNow;
 
             await _conviteRevisaoRepository.SalvarAsync();
+        }
+        private async Task GarantirQueRevisaoNaoEstaEmVotacaoAsync(
+        int revisaoId)
+        {
+            var votacaoAtiva = await _votacaoRepository
+                .ObterAtivaPorRevisaoAsync(revisaoId);
+
+            if (votacaoAtiva != null)
+            {
+                throw new InvalidOperationException(
+                    "Não é possível adicionar membros enquanto a revisão está em votação.");
+            }
+        }
+        private static PapelMembroRevisao
+        ValidarPapelDoConvite(
+        PapelMembroRevisao? papel)
+        {
+            if (!papel.HasValue)
+            {
+                throw new ArgumentException(
+                    "Informe o papel do usuário convidado.");
+            }
+
+            return papel.Value switch
+            {
+                PapelMembroRevisao.Revisor =>
+                    PapelMembroRevisao.Revisor,
+
+                PapelMembroRevisao.Colaborador =>
+                    PapelMembroRevisao.Colaborador,
+
+                PapelMembroRevisao.Avaliador =>
+                    PapelMembroRevisao.Avaliador,
+
+                _ => throw new ArgumentException(
+                    "O papel do convite deve ser Revisor, Colaborador ou Avaliador.")
+            };
         }
     }
 }
