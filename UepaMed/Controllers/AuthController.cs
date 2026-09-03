@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using UepaMed.Infrastructure.Data;
-using UepaMed.Domain.Entities;
-using UepaMed.Application.Services;
+using System.Net.Mail;
+using System.Text.RegularExpressions;
 using UepaMed.Application.Dtos.Usuario;
+using UepaMed.Application.Services;
 using UepaMed.Domain.Entities.Usuarios;
+using UepaMed.Infrastructure.Data;
 
 namespace UepaMed.Controllers
 {
@@ -21,19 +22,75 @@ namespace UepaMed.Controllers
             _tokenService = tokenService;
         }
 
+
         [HttpPost("registro")]
         public async Task<IActionResult> Registro(RegistroDto dto)
         {
+            var nome = dto.Nome?.Trim();
+            var email = dto.Email?.Trim().ToLowerInvariant();
+
+            if (string.IsNullOrWhiteSpace(nome))
+            {
+                return BadRequest("O nome é obrigatório.");
+            }
+
+            if (nome.Length < 3 || nome.Length > 50)
+            {
+                return BadRequest(
+                    "O nome deve possuir entre 3 e 50 caracteres."
+                );
+            }
+
+            if (!Regex.IsMatch(nome, @"^[\p{L}]+(?: +[\p{L}]+)*$"))
+            {
+                return BadRequest(
+                    "O nome deve conter somente letras e espaços."
+                );
+            }
+
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return BadRequest("O e-mail é obrigatório.");
+            }
+
+            if (!EmailValido(email))
+            {
+                return BadRequest("O formato do e-mail é inválido.");
+            }
+
+            var emailJaCadastrado = await _db.Usuarios.AnyAsync(
+                usuario =>
+                    usuario.Email != null &&
+                    usuario.Email.ToLower() == email
+            );
+
+            if (string.IsNullOrWhiteSpace(dto.Senha))
+            {
+                return BadRequest("A senha é obrigatória.");
+            }
+
+            if (dto.Senha.Length < 6 || dto.Senha.Length > 50)
+            {
+                return BadRequest(
+                    "A senha deve possuir entre 6 e 50 caracteres."
+                );
+            }
+
+            if (emailJaCadastrado)
+            {
+                return Conflict("E-mail já cadastrado.");
+            }
+
+
             if (await _db.Usuarios.AnyAsync(u => u.Email == dto.Email))
             {
                 return BadRequest("E-mail já cadastrado.");
             }
-                
 
             var usuario = new Usuario
             {
-                Nome = dto.Nome,
-                Email = dto.Email,
+                Nome = nome,
+                Email = email,
                 SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha)
             };
 
@@ -81,6 +138,15 @@ namespace UepaMed.Controllers
             await _db.SaveChangesAsync();
 
             return Ok(new TokenResponseDto(novoAccessToken, novoRefreshToken));
+        }
+
+        private static bool EmailValido(string email)
+        {
+            return MailAddress.TryCreate(email, out var endereco)
+                && endereco.Address.Equals(
+                    email,
+                    StringComparison.OrdinalIgnoreCase
+                );
         }
     }
 }
