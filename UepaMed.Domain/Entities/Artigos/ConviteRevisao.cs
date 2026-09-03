@@ -14,7 +14,7 @@ namespace UepaMed.Domain.Entities.Artigos
 
         public int ConvidadoPorUsuarioId { get; set; }
         public PapelMembroRevisao Papel { get; set; }
-    = PapelMembroRevisao.Revisor;
+        = PapelMembroRevisao.Revisor;
 
         public StatusConviteRevisao Status { get; set; }
             = StatusConviteRevisao.Pendente;
