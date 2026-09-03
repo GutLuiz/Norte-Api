@@ -1,7 +1,7 @@
 # Registro de usuário - Requisitos:
 
 - Requisitos Funcionais:
-	-o usuário deve conseguir criar uma conta informando nome, email e senha.
+	- o usuário deve conseguir criar uma conta informando nome, email e senha.
 	- Nome, e-mail e senha são campos obrigatórios.
 	- O sistema deve aceitar somente um e-mail em formato válido.
 	- O e-mail não pode estar vinculado a outra conta.

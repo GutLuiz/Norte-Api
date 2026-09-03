@@ -101,24 +101,65 @@ namespace UepaMed.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<TokenResponseDto>> Login(LoginDto dto)
+        public async Task<IActionResult> Login(LoginDto dto)
         {
-            var usuario = await _db.Usuarios.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            var usuario = await _db.Usuarios
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
-            if (usuario is null || !BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.SenhaHash))
+            if (
+                usuario is null ||
+                !BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.SenhaHash)
+            )
             {
                 return Unauthorized("Credenciais inválidas.");
             }
-                
 
             var accessToken = _tokenService.GerarAccessToken(usuario);
             var refreshToken = _tokenService.GerarRefreshToken();
 
             usuario.RefreshToken = refreshToken;
             usuario.RefreshTokenExpiraEm = DateTime.UtcNow.AddDays(7);
+
             await _db.SaveChangesAsync();
 
-            return Ok(new TokenResponseDto(accessToken, refreshToken));
+            // Access token enviado em cookie
+            Response.Cookies.Append(
+                "access_token",
+                accessToken,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(15),
+                    Path = "/"
+                }
+            );
+
+            // Refresh token enviado em cookie
+            Response.Cookies.Append(
+                "refresh_token",
+                refreshToken,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddDays(7),
+                    Path = "/"
+                }
+            );
+
+            return Ok(new
+            {
+                mensagem = "Login realizado com sucesso.",
+                usuario = new
+                {
+                    usuario.Id,
+                    usuario.Nome,
+                    usuario.Email
+                }
+            });
         }
 
         [HttpPost("refresh")]
