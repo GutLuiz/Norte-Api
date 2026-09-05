@@ -22,4 +22,9 @@
     <ProjectReference Include="..\UepaMed.Infrastructure\UepaMed.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="docs\Quality\Features\Login\" />
+    <Folder Include="docs\Quality\Features\Revisao\" />
+  </ItemGroup>
+
 </Project>
