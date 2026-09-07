@@ -61,5 +61,22 @@ namespace UepaMed.Infrastructure.Repositories.Revisoes
                 .Include(rm => rm.Usuario)
                 .ToListAsync();
         }
+        public async Task<RevisaoMembro?> BuscarPorRevisaoEUsuarioAsync(
+            int revisaoId,
+            int usuarioId
+        )
+        {
+            return await _context.RevisoesMembro
+                .FirstOrDefaultAsync(membro =>
+                    membro.RevisaoId == revisaoId &&
+                    membro.UsuarioId == usuarioId
+                );
+        }
+        public Task RemoverAsync(RevisaoMembro membro)
+        {
+            _context.RevisoesMembro.Remove(membro);
+
+            return Task.CompletedTask;
+        }
     }
 }

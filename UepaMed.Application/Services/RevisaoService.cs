@@ -145,6 +145,37 @@ namespace UepaMed.Application.Services
 
             return true;
         }
+        public async Task SairDaRevisao(int revisaoId)
+        {
+            var usuarioIdClaim = _httpContextAccessor.HttpContext?
+                .User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(usuarioIdClaim, out var usuarioId))
+            {
+                throw new UnauthorizedAccessException("Usuário não autenticado.");
+            }
+
+            var membro = await _revisaoMembroRepository
+                .BuscarPorRevisaoEUsuarioAsync(revisaoId, usuarioId);
+
+            if (membro == null)
+            {
+                throw new KeyNotFoundException(
+                    "O usuário não participa desta revisão."
+                );
+            }
+
+            if (membro.Papel == PapelMembroRevisao.Proprietario)
+            {
+                throw new ArgumentException(
+                    "O proprietário não pode sair da revisão. "
+                );
+            }
+
+            await _revisaoMembroRepository.RemoverAsync(membro);
+            await _revisaoMembroRepository.SalvarAsync();
+        }
 
         public async Task<List<RevisaoMembroDto>> ListarMembrosAsync(
           int revisaoId,
