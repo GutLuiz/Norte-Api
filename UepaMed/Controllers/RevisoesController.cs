@@ -96,5 +96,12 @@ namespace UepaMed.Controllers
 
             return NoContent();
         }
+        [HttpDelete("{id}/membros/me")]
+        public async Task<IActionResult> SairDaRevisao(int id)
+        {
+            await _revisaoService.SairDaRevisao(id);
+
+            return NoContent();
+        }
     }
 }
