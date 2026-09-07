@@ -5,13 +5,11 @@
 	-> Informar e-mail e senha de um usuário cadastrado → Login concluído, mensagem de sucesso e 
 	informações não sensíveis retornadas.
 - Validações do e-mail:
-	-> Realizar login sem informar o e-mail → Login rejeitado.
 	-> Informar e-mail nulo → Login rejeitado.
 	-> Informar e-mail em formato inválido → Login rejeitado.
 	-> Informar e-mail não cadastrado → Login rejeitado com a mensagem “E-mail ou senha inválidos”.
 	-> Informar e-mail cadastrado utilizando letras maiúsculas → Login realizado normalmente.
 - Validações da senha:
-	-> Realizar login sem informar a senha → Login rejeitado.
 	-> Informar senha nula → Login rejeitado.
 	-> Informar senha incorreta → Login rejeitado com a mensagem “E-mail ou senha inválidos”.
 - Validações das credenciais:

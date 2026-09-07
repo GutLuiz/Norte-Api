@@ -30,6 +30,7 @@ todos esses cenários o usuário deve estar autenticado:
 - Validações de edição:
 	-> O usuário com papel propietário -> pode editar normalmente a revisão
 	-> O usuário com papel diferente de propietário -> não pode editar a revisão
+
 - Validações de exclusão:
 	-> O usuário com papel propíetário -> deve excluir toda a revisão
 	-> O usuário com papel diferente do proprietário -> deve somente sair da revisão e 
