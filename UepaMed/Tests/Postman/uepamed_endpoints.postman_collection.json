@@ -510,6 +510,304 @@
           ]
         }
       ]
+    },
+    {
+      "name": "revisao",
+      "item": [
+        {
+          "name": "cadastrar",
+          "item": [
+            {
+              "name": "Dados Válidos",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5080/api/revisoes",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5080",
+                  "path": [
+                    "api",
+                    "revisoes"
+                  ]
+                },
+                "description": "Este endpoint realiza o cadastro de uma nova revisão\n\nResultado esperado para uma requisição válida:\n\n- Retornar status code 201 (created)\n    \n- Criar uma revisão no sistema\n    \n- Retornar o corpo dos dados criados"
+              },
+              "response": []
+            },
+            {
+              "name": "Título nulo",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"titulo\": \"\",\r\n  \"dominio\": 1,\r\n  \"tipo\": 1,\r\n  \"descricao\": \"Revisão criada para validar o fluxo de cadastro.\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5080/api/revisoes",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5080",
+                  "path": [
+                    "api",
+                    "revisoes"
+                  ]
+                },
+                "description": "Este endpoint realiza o cadastro de uma nova revisão sem Título\n\nResultado esperado para uma requisição válida:\n\n- Retornar status code 400(Bad request)\n    \n- Não criar uma revisão no sistema\n    \n- Retornar uma mensagem do erro específico"
+              },
+              "response": []
+            },
+            {
+              "name": "Título numeros",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"titulo\": \"3032156152\",\r\n  \"dominio\": 1,\r\n  \"tipo\": 1,\r\n  \"descricao\": \"Revisão criada para validar o fluxo de cadastro.\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5080/api/revisoes",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5080",
+                  "path": [
+                    "api",
+                    "revisoes"
+                  ]
+                },
+                "description": "Este endpoint realiza o cadastro de revisão com o título somente números\n\nResultado esperado para uma requisição válida:\n\n- Retornar um status code 400 (Bad Request)\n    \n- Não criar uma revisão no sistema\n    \n- Retornar uma mensagem com o erro específico"
+              },
+              "response": []
+            },
+            {
+              "name": "Título especiais",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"titulo\": \"!!!!\",\r\n  \"dominio\": 1,\r\n  \"tipo\": 1,\r\n  \"descricao\": \"Revisão criada para validar o fluxo de cadastro.\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5080/api/revisoes",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5080",
+                  "path": [
+                    "api",
+                    "revisoes"
+                  ]
+                },
+                "description": "Este endpoint realiza um cadastro de revisão com somente caracteres especiais\n\nResultado esperado para uma requisição válida:\n\n- Retorno do status code 400 (Bad Request)\n    \n- Não criar uma revisão no sistema\n    \n- Retornar uma mensagem específica do erro"
+              },
+              "response": []
+            },
+            {
+              "name": "Título caracteres",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"titulo\": \"gut\",\r\n  \"dominio\": 1,\r\n  \"tipo\": 1,\r\n  \"descricao\": \"Revisão criada para validar o fluxo de cadastro.\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5080/api/revisoes",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5080",
+                  "path": [
+                    "api",
+                    "revisoes"
+                  ]
+                },
+                "description": "Este endpoint realiza o cadastro de uma revisão com título <10 caracteres\n\n- Retornar um status code 400 (Bad Request)\n    \n- Não criar uma revisão no sistema\n    \n- Retornar uma mensagem específica de erro"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Listar Revisoes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5080/api/revisoes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5080",
+              "path": [
+                "api",
+                "revisoes"
+              ]
+            },
+            "description": "Este endpoint realiza uma busca de todas as revisões que usuário faz parte\n\nRetorno esperado para uma requisição válida:\n\n- Retorno do status code 200 (OK)\n    \n- Retorno de todas as revisões que este usuário pertence"
+          },
+          "response": []
+        },
+        {
+          "name": "Editar Revisao Proprietario",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "  {\r\n        \"titulo\": \"teste 1 - EDITADO AGORA\",\r\n        \"tipo\": \"RevisaoSistematica\",\r\n        \"dominio\": \"Saude\",\r\n        \"descricao\": null\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5080/api/revisoes/18",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5080",
+              "path": [
+                "api",
+                "revisoes",
+                "18"
+              ]
+            },
+            "description": "Este endpoint realiza uma edição de revisão de usuário que tem o papel PROPRIETÁRIO\n\nRetorno esperando para uma requisição válida:\n\n- Retornar status code 200 (OK)\n    \n- Atualizar o sistema os dados novos\n    \n- Retornar o corpo da revisão com os seus dados novos"
+          },
+          "response": []
+        },
+        {
+          "name": "Editar Revisao não proprietário",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "  {\r\n        \"titulo\": \"teste 2 - EDITADO AGORA REVISOR\",\r\n        \"tipo\": \"RevisaoSistematica\",\r\n        \"dominio\": \"Saude\",\r\n        \"descricao\": null\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5080/api/revisoes/30",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5080",
+              "path": [
+                "api",
+                "revisoes",
+                "30"
+              ]
+            },
+            "description": "Este endpoint realiza uma edição de revisão sem ser proprietário\n\nResultado esperado para uma requisição válida:\n\n- Retornar o status code 404 (Not Found)\n    \n- O id do usuário cadastrado é diferente do id que está na revisão"
+          },
+          "response": []
+        },
+        {
+          "name": "Excluir revisão (Proprietário)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5080/api/revisoes/18",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5080",
+              "path": [
+                "api",
+                "revisoes",
+                "18"
+              ]
+            },
+            "description": "Este endpoint realiza a exclusão de uma revisão proprietário\n\nRetorno esperado para uma requisição válida:\n\n- Retornar status code 204(No Content)\n    \n- Excluir a revisão do sistema\n    \n- Não retornar nada, somente excluir a revisão específica"
+          },
+          "response": []
+        },
+        {
+          "name": "Sair revisão (!Proprietário)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5080/api/revisoes/30/membros/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5080",
+              "path": [
+                "api",
+                "revisoes",
+                "30",
+                "membros",
+                "me"
+              ]
+            },
+            "description": "Este endpoint realiza a saída de uma revisão onde o papel do usuário é diferente de proprietário\n\nResultado esperado para a requisição válida:\n\n- Retonar um status code 204 (No Content)\n    \n- Usuário espcífico sair da revisão\n    \n- Revisão permanecer normal"
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "variable": [
