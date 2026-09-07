@@ -23,7 +23,7 @@ todos esses cenários o usuário deve estar autenticado:
 	com somente números"
 	-> O Título não pode ter caracteres especiais -> mensagem "título não aceita caracteres
 	especiais"
-	-> O Título deve conter menos de 10 caracteres -> mensagem "título no minímo 10 caracteres"
+	-> O Título deve conter pelo menos de 10 caracteres -> mensagem "título no minímo 10 caracteres"
 - Listar Revisões com sucesso:
 	-> O sistema deve retornar a lista de revisões que aquele usuário participa
 	independente do papel.
