@@ -35,6 +35,8 @@ namespace UepaMed.Application.Services
                 throw new UnauthorizedAccessException("Usuário não autenticado.");
             }
 
+            ValidarTitulo(dto.Titulo);
+
             var revisao = new Revisao
             {
                 Titulo = dto.Titulo,
@@ -173,6 +175,34 @@ namespace UepaMed.Application.Services
                 Email = m.Usuario.Email,
                 Papel = m.Papel
             }).ToList();
+        }
+
+        private static void ValidarTitulo(string? titulo)
+        {
+            if (string.IsNullOrWhiteSpace(titulo))
+            {
+                throw new ArgumentException("O título da revisão é obrigatório.");
+            }
+
+            titulo = titulo.Trim();
+
+            if (titulo.Length < 10)
+            {
+                throw new ArgumentException(
+                    "O título da revisão deve ter pelo menos 10 caracteres.");
+            }
+
+            if (titulo.All(char.IsDigit))
+            {
+                throw new ArgumentException(
+                    "O título da revisão não pode conter somente números.");
+            }
+
+            if (!titulo.Any(char.IsLetter))
+            {
+                throw new ArgumentException(
+                    "O título da revisão deve conter pelo menos uma letra.");
+            }
         }
 
 
