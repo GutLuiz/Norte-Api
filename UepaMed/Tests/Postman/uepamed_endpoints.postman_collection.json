@@ -1,0 +1,521 @@
+{
+  "info": {
+    "_postman_id": "560998a2-08b3-4ee5-a677-d5220d1d0e6d",
+    "name": "uepamed_endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "38516617"
+  },
+  "item": [
+    {
+      "name": "autenticacao",
+      "item": [
+        {
+          "name": "Registro",
+          "item": [
+            {
+              "name": "nome",
+              "item": [
+                {
+                  "name": "Nome nulo",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"nome\": \"Gabriela Lino\",\r\n    \"email\": \"Gabrielalino@gmail.com\",\r\n    \"senha\": \"gabriela123\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/auth/registro",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "auth",
+                        "registro"
+                      ]
+                    },
+                    "description": "Este endpoint realiza um cadastro de um nome nulo\n\nResultado esperado para uma requisição válida:\n\n- Status code 400 (Bad Request)\n    \n- Não criar um usuário no banco\n    \n- Retornar uma mensagem de erro de validação"
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Nome caracteres",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"nome\": \"a\",\r\n    \"email\": \"Gabrielalino@gmail.com\",\r\n    \"senha\": \"gabriela123\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/auth/registro",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "auth",
+                        "registro"
+                      ]
+                    },
+                    "description": "Este endpoint realiza um cadastro de um nome com quantidade de caracteres <2 e >50.\n\nResultado esperado para uma requisição válida:\n\n- Status code 400 (Bad Request)\n    \n- Não criar o usário no banco\n    \n- Retorna uma mensagem de erro de validação"
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Nome numeros",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"nome\": \"julio22\",\r\n    \"email\": \"juliolino@gmail.com\",\r\n    \"senha\": \"gabriela123\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/auth/registro",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "auth",
+                        "registro"
+                      ]
+                    },
+                    "description": "Este endpoint realiza o cadastro de nomes com números e caracteres especiais\n\nResultado esperado para uma requisição válida:\n\n- Status code 400 (Bad Request)\n    \n- Não criar usuário no banco\n    \n- Retornar uma mensagem de erro de validação"
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "email",
+              "item": [
+                {
+                  "name": "Email duplicado",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"nome\": \"Julio lino\",\r\n    \"email\": \"juliana@gmail.com\",\r\n    \"senha\": \"gabriela123\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/auth/registro",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "auth",
+                        "registro"
+                      ]
+                    },
+                    "description": "Este endpoint realiza um cadastro de um email que já está cadastrado no banco\n\nResultado esperado para uma requisição válida:\n\n- Status code 409 (Conflict)\n    \n- Não criar um usuário no banco\n    \n- Retornar uma mensagem de erro de validação"
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Email nulo",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"nome\": \"Julio lino\",\r\n    \"email\": \"\",\r\n    \"senha\": \"gabriela123\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/auth/registro",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "auth",
+                        "registro"
+                      ]
+                    },
+                    "description": "Este endpoint realiza um cadastro de um email nulo\n\nResultado esperado para uma requisição válida:\n\n- Status code 400 (Bad Request)\n    \n- Não criar um usuário no banco\n    \n- Retornar uma mensagem de erro de validação"
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Email formato",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"nome\": \"Julio lino\",\r\n    \"email\": \"adadada.com\",\r\n    \"senha\": \"gabriela123\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/auth/registro",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "auth",
+                        "registro"
+                      ]
+                    },
+                    "description": "Este endpoint realiza um cadastro de um email com formato sem @\n\nResultado esperado para uma requisição válida:\n\n- Status code 400 (Bad Request)\n    \n- Não criar um usuário no banco\n    \n- Retornar uma mensagem de erro de validação"
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "senha",
+              "item": [
+                {
+                  "name": "Senha caracteres",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"nome\": \"Julio lino\",\r\n    \"email\": \"asdahdahd@gmail.com\",\r\n    \"senha\": \"ga\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/auth/registro",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "auth",
+                        "registro"
+                      ]
+                    },
+                    "description": "Este endpoint realiza um cadastro de um nome com quantidade de caracteres <6 e >50.\n\nResultado esperado para uma requisição válida:\n\n- Status code 400 (Bad Request)\n    \n- Não criar o usário no banco\n    \n- Retorna uma mensagem de erro de validação"
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Senha nulo",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"nome\": \"Julio lino\",\r\n    \"email\": \"julianaadadadadadadad@gmail.com\",\r\n    \"senha\": \"\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/auth/registro",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "auth",
+                        "registro"
+                      ]
+                    },
+                    "description": "Este endpoint realiza um cadastro de um senha nulo\n\nResultado esperado para uma requisição válida:\n\n- Status code 400 (Bad Request)\n    \n- Não criar um usuário no banco\n    \n- Retornar uma mensagem de erro de validação"
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Dados Validos",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"nome\": \"julio Lino\",\r\n    \"email\": \"juliolino@gmail.com\",\r\n    \"senha\": \"gabriela123\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5080/api/auth/registro",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5080",
+                  "path": [
+                    "api",
+                    "auth",
+                    "registro"
+                  ]
+                },
+                "description": "Este endpoint realiza o cadastro de um novo usuário.\n\nResultado esperado para uma requisição válida:\n\n- Retornar status 201 Created.\n    \n- Criar o usuário no sistema.\n    \n- Retornar os dados do usuário criado.\n    \n- Não retornar a senha no corpo da resposta.\n    \n\nEm caso de dados inválidos:\n\n- Retornar status 400 Bad Request.\n    \n- Informar quais campos são inválidos ou obrigatórios.\n    \n- Não criar nenhum usuário."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "item": [
+            {
+              "name": "email",
+              "item": [
+                {
+                  "name": "Email nulo",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"email\": \"\",\r\n  \"senha\": \"123456dad7\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/auth/login",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "auth",
+                        "login"
+                      ]
+                    },
+                    "description": "Este endpoint realiza um login com email nulo\n\nResultado esperado para uma requisição válida:\n\n- Retornar um status code 400 ou 401 (Unauthorized)\n    \n- Não acessar o sistema"
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Email formato",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"email\": \"julianagmail.com\",\r\n  \"senha\": \"1234567\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/auth/login",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "auth",
+                        "login"
+                      ]
+                    },
+                    "description": "Este endpoint realiza um cadastro de um email com formato sem @\n\nResultado esperado para uma requisição válida:\n\n- Status code 401 (Unauthorized)\n    \n- Não acessar o sistema\n    \n- Retornar uma mensagem de erro de validação"
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Email não cadastrado",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"email\": \"juliana@gmail.com\",\r\n  \"senha\": \"1234567\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/auth/login",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "auth",
+                        "login"
+                      ]
+                    },
+                    "description": "Este endpoint realiza um cadastro de um email sem estar cadastrado\n\nResultado esperado para uma requisição válida:\n\n- Status code 401 (Unauthorized)\n    \n- Não acessar o sistema\n    \n- Retornar uma mensagem de erro de validação"
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "senha",
+              "item": [
+                {
+                  "name": "Senha nulo",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"email\": \"juliana@gmail.com\",\r\n  \"senha\": \"\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/auth/login",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "auth",
+                        "login"
+                      ]
+                    },
+                    "description": "Este endpoint realiza um cadastro de um senha nulo\n\nResultado esperado para uma requisição válida:\n\n- Status code 401 (Unauthorized)\n    \n- Não acessar o sistema\n    \n- Retornar uma mensagem de erro de validação"
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Senha incorreta",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"email\": \"juliana@gmail.com\",\r\n  \"senha\": \"12345627\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/auth/login",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "auth",
+                        "login"
+                      ]
+                    },
+                    "description": "Este endpoint realiza o login digitando a senha errada\n\nResultado esperando para uma requisição válida:\n\n- Status code 401 (Unauthorized)\n    \n- Não acessar o sistema\n    \n- Retornar uma mensagem de erro de validação"
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Dados válidos",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"juliana@gmail.com\",\r\n  \"senha\": \"1234567\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5080/api/auth/login",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5080",
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "Este endpoint realiza o login de usuário\n\nResultado esperado para uma requisição válida:\n\n- Retornar status 200 (OK).\n    \n- Logar o usuário no sistema.\n    \n- Retornar os dados do usuário criado.\n    \n- Não retornar a senha no corpo da resposta."
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "json_web_token_0yaf",
+      "secret": true
+    }
+  ]
+}
