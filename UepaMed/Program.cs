@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -8,44 +9,62 @@ using UepaMed.Application.Interfaces.Artigos;
 using UepaMed.Application.Interfaces.Convites;
 using UepaMed.Application.Interfaces.Revisoes;
 using UepaMed.Application.Interfaces.Usuarios;
+using UepaMed.Application.Interfaces.Votacoes;
+using UepaMed.Application.Services;
 using UepaMed.Infrastructure.Data;
 using UepaMed.Infrastructure.Importers;
 using UepaMed.Infrastructure.Repositories.Arquivos;
 using UepaMed.Infrastructure.Repositories.Artigos;
 using UepaMed.Infrastructure.Repositories.Revisoes;
 using UepaMed.Infrastructure.Repositories.Usuarios;
-using UepaMed.Application.Interfaces.Votacoes;
 using UepaMed.Infrastructure.Repositories.Votacoes;
-using UepaMed.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    )
+);
 
 builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<RevisaoService>();
 builder.Services.AddScoped<IRevisaoRepository, RevisaoRepository>();
+
 builder.Services.AddScoped<IImportadorArtigos, NbibImportador>();
 builder.Services.AddScoped<IImportadorArtigos, RisImportador>();
 builder.Services.AddScoped<IArtigoRepository, ArtigoRepository>();
 builder.Services.AddScoped<ImportacaoArtigosService>();
-builder.Services.AddScoped< IArquivoImportacaoRepository,ArquivoImportacaoRepository>();
-builder.Services.AddScoped<IRevisaoMembroRepository, RevisaoMembroRepository>();
-builder.Services.AddScoped<IConviteRevisaoRepository,ConviteRevisaoRepository>();
+
+builder.Services.AddScoped<
+    IArquivoImportacaoRepository,
+    ArquivoImportacaoRepository
+>();
+
+builder.Services.AddScoped<
+    IRevisaoMembroRepository,
+    RevisaoMembroRepository
+>();
+
+builder.Services.AddScoped<
+    IConviteRevisaoRepository,
+    ConviteRevisaoRepository
+>();
+
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ConviteRevisaoService>();
-builder.Services.AddScoped<IVotacaoRepository,VotacaoRepository>();
+
+builder.Services.AddScoped<IVotacaoRepository, VotacaoRepository>();
 builder.Services.AddScoped<VotacaoService>();
 
 builder.Services.AddScoped<
     IDuplicidadeRepository,
-    DuplicidadeRepository>();
+    DuplicidadeRepository
+>();
 
 builder.Services.AddScoped<DuplicidadeService>();
-
 
 builder.Services.AddCors(options =>
 {
@@ -130,6 +149,47 @@ builder.Services
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var error = context.Features
+            .Get<IExceptionHandlerFeature>()?
+            .Error;
+
+        var (statusCode, message) = error switch
+        {
+            ArgumentException exception => (
+                StatusCodes.Status400BadRequest,
+                exception.Message
+            ),
+
+            UnauthorizedAccessException exception => (
+                StatusCodes.Status401Unauthorized,
+                exception.Message
+            ),
+
+            KeyNotFoundException exception => (
+                StatusCodes.Status404NotFound,
+                exception.Message
+            ),
+
+            _ => (
+                StatusCodes.Status500InternalServerError,
+                "Ocorreu um erro interno. Tente novamente mais tarde."
+            )
+        };
+
+        context.Response.StatusCode = statusCode;
+        context.Response.ContentType = "application/json";
+
+        await context.Response.WriteAsJsonAsync(new
+        {
+            message
+        });
+    });
+});
 
 app.UseHttpsRedirection();
 

@@ -25,6 +25,7 @@
   <ItemGroup>
     <Folder Include="docs\Quality\Features\Login\" />
     <Folder Include="docs\Quality\Features\Revisao\" />
+    <Folder Include="Tests\Postman\" />
   </ItemGroup>
 
 </Project>
