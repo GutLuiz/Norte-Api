@@ -15,9 +15,9 @@ namespace UepaMed.Application.Interfaces.Revisoes
         Task<List<RevisaoMembro>> ListarMembrosDaRevisaoAsync(int revisaoId);
 
         Task<RevisaoMembro?> BuscarPorRevisaoEUsuarioAsync(
-    int revisaoId,
-    int usuarioId
-);
+            int revisaoId,
+            int usuarioId
+        );
 
         Task RemoverAsync(RevisaoMembro membro);
 
