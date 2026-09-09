@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UepaMed.Application.Services;
+using UepaMed.Domain.Entities.Usuarios;
 
 namespace UepaMed.Controllers
 {
@@ -19,7 +20,7 @@ namespace UepaMed.Controllers
 
         [HttpPost]
         public async Task<IActionResult> ImportarArquivo(
-            int revisaoId,
+            int revisaoId, int usuarioId,
             [FromForm] IFormFile arquivo)
         {
             if (arquivo == null || arquivo.Length == 0)
@@ -47,6 +48,7 @@ namespace UepaMed.Controllers
 
             var artigos = await _service.ImportarAsync(
                 revisaoId,
+                usuarioId,
                 stream,
                 arquivo.FileName);
 
