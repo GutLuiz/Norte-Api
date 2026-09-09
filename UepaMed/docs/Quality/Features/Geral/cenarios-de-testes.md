@@ -1,4 +1,4 @@
-# Revisão - Cenários de Testes
+# Visão Geral - Cenários de Testes
 # CENARIO -> RESULTADO ESPERADO
 
 - Premissas
