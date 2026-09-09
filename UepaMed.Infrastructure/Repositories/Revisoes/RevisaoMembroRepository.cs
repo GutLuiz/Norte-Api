@@ -78,5 +78,15 @@ namespace UepaMed.Infrastructure.Repositories.Revisoes
 
             return Task.CompletedTask;
         }
+        public async Task<bool> PodeImportarArquivoAsync(
+        int revisaoId,
+        int usuarioId)
+        {
+            return await _context.RevisoesMembro.AnyAsync(membro =>
+                membro.RevisaoId == revisaoId &&
+                membro.UsuarioId == usuarioId &&
+                (membro.Papel == PapelMembroRevisao.Proprietario ||
+                 membro.Papel == PapelMembroRevisao.Revisor));
+        }
     }
 }
