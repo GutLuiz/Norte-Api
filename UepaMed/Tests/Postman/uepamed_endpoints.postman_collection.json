@@ -512,7 +512,7 @@
       ]
     },
     {
-      "name": "revisao",
+      "name": "geral",
       "item": [
         {
           "name": "cadastrar",
@@ -806,6 +806,124 @@
             "description": "Este endpoint realiza a saída de uma revisão onde o papel do usuário é diferente de proprietário\n\nResultado esperado para a requisição válida:\n\n- Retonar um status code 204 (No Content)\n    \n- Usuário espcífico sair da revisão\n    \n- Revisão permanecer normal"
           },
           "response": []
+        }
+      ]
+    },
+    {
+      "name": "revisao",
+      "item": [
+        {
+          "name": "visao geral",
+          "item": [
+            {
+              "name": "revisoes membros",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": ""
+                },
+                "description": "Este endpoint realiza uma chamada na lista de membros que estão na revisão\n\nResultado esperado para requisição válida:\n\n- Retornar o status code 200 (OK)\n    \n- Retornar uma lista com o corpo dos usuários que estão na revisão"
+              },
+              "response": []
+            },
+            {
+              "name": "adicionar membro (proprietário)",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"juju@gmail.com\",\r\n  \"papel\": \"REVISOR\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5080/api/revisoes/29/convites",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5080",
+                  "path": [
+                    "api",
+                    "revisoes",
+                    "29",
+                    "convites"
+                  ]
+                },
+                "description": "Este endpoint realiza um convite feito para um usuário entrar na revisão"
+              },
+              "response": []
+            },
+            {
+              "name": "adicionar membro (!proprietário)",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"juju@gmail.com\",\r\n  \"papel\": \"REVISOR\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5080/api/revisoes/30/convites",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5080",
+                  "path": [
+                    "api",
+                    "revisoes",
+                    "30",
+                    "convites"
+                  ]
+                },
+                "description": "Este endpoint realiza um convite para uma revisão de um usuário que não é proprietário da mesma\n\nResultado esperado para uma requisição válida:\n\n- Retornar um status code 401(Unauthorized)\n    \n- Não fazer o convite para o usuário\n    \n- Retonar uma mensagem dessa validação"
+              },
+              "response": []
+            },
+            {
+              "name": "aceitar convite (em votacao)",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5080/api/convites/13/aceitar",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5080",
+                  "path": [
+                    "api",
+                    "convites",
+                    "13",
+                    "aceitar"
+                  ]
+                },
+                "description": "Este endpoint realiza o teste de aceitar um convite enquanto a revisão especpifica está em votação\n\nResultado esperado para uma requisição válida:\n\n- Retornar o status code 409 (Conflict)\n    \n- O sistema não aceita esse usuário como um novo membro da revisão\n    \n- Retornar uma mensagem do sistema sobre o motivo de não aceitar o convite"
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }
