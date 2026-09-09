@@ -9,6 +9,8 @@ namespace UepaMed.Application.Interfaces.Artigos
 
         Task AdicionarParIgnoradoAsync(
             DuplicidadeIgnorada duplicidadeIgnorada);
+
+
       
     }
 }

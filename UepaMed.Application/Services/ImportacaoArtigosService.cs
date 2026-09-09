@@ -1,11 +1,12 @@
 ﻿using UepaMed.Application.Dtos.importacao;
 using UepaMed.Application.Interfaces.Arquivos;
 using UepaMed.Application.Interfaces.Artigos;
+using UepaMed.Application.Interfaces.Revisoes;
+using UepaMed.Application.Interfaces.Votacoes;
 using UepaMed.Domain.Entities.Arquivos;
 using UepaMed.Domain.Entities.Artigos;
 using UepaMed.Domain.Enums;
 using UepaMed.Domain.Enums.Arquivos;
-using UepaMed.Application.Interfaces.Votacoes;
 
 namespace UepaMed.Application.Services
 {
@@ -15,21 +16,25 @@ namespace UepaMed.Application.Services
         private readonly IArquivoImportacaoRepository _arquivoRepository;
         private readonly IArtigoRepository _artigoRepository;
         private readonly IVotacaoRepository _votacaoRepository;
+        private readonly IRevisaoMembroRepository _revisaoMembroRepository;
 
         public ImportacaoArtigosService(
             IEnumerable<IImportadorArtigos> importadores,
             IArquivoImportacaoRepository arquivoRepository,
             IArtigoRepository artigoRepository,
-            IVotacaoRepository votacaoRepository)
+            IVotacaoRepository votacaoRepository,
+            IRevisaoMembroRepository revisaoMembroRepository)
         {
             _importadores = importadores;
             _arquivoRepository = arquivoRepository;
             _artigoRepository = artigoRepository;
             _votacaoRepository = votacaoRepository;
+            _revisaoMembroRepository = revisaoMembroRepository;
         }
 
         public async Task<List<Artigo>> ImportarAsync(
             int revisaoId,
+            int usuarioId,
             Stream arquivo,
             string nomeArquivo)
         {
@@ -42,6 +47,15 @@ namespace UepaMed.Application.Services
 
             var votacaoAtiva = await _votacaoRepository
             .ObterAtivaPorRevisaoAsync(revisaoId);
+
+            var podeImportar = await _revisaoMembroRepository
+            .PodeImportarArquivoAsync(revisaoId, usuarioId);
+
+            if (!podeImportar)
+            {
+                throw new UnauthorizedAccessException(
+                    "Apenas o proprietário ou um revisor podem importar arquivos nesta revisão.");
+            }
 
             if (votacaoAtiva != null)
             {

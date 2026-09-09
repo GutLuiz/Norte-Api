@@ -21,5 +21,7 @@ namespace UepaMed.Application.Interfaces.Revisoes
 
         Task RemoverAsync(RevisaoMembro membro);
 
+        Task<bool> PodeImportarArquivoAsync(int revisaoId, int usuarioId);
+
     }
 }

@@ -165,6 +165,7 @@ namespace UepaMed.Application.Services
                 throw new InvalidOperationException(
                     "Você já é membro desta revisão.");
 
+
             var membro = new RevisaoMembro
             {
                 RevisaoId = convite.RevisaoId,

@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UepaMed.Application.Dtos.Artigos;
 using UepaMed.Application.Interfaces.Artigos;
+using UepaMed.Application.Interfaces.Revisoes;
 using UepaMed.Domain.Entities.Artigos;
 using UepaMed.Domain.Enums;
 
@@ -12,13 +13,16 @@ namespace UepaMed.Application.Services
     {
         private readonly IArtigoRepository _artigoRepository;
         private readonly IDuplicidadeRepository _duplicidadeRepository;
+        private readonly IRevisaoMembroRepository _revisaoMembroRepository;
 
         public DuplicidadeService(
             IArtigoRepository artigoRepository,
-            IDuplicidadeRepository duplicidadeRepository)
+            IDuplicidadeRepository duplicidadeRepository,
+            IRevisaoMembroRepository revisaoMembroRepository)
         {
             _artigoRepository = artigoRepository;
             _duplicidadeRepository = duplicidadeRepository;
+            _revisaoMembroRepository = revisaoMembroRepository;
         }
 
         public async Task<IReadOnlyList<PossivelDuplicidadeDto>>
