@@ -4,7 +4,7 @@
 
 	- Todos os usuários participantes da revisão devem visualizar as informações do cadastro da revisão, como título, domínio, tipo, descrição, data de criação e status.
 
-	- Os indicadores e resultados finais da revisão devem permanecer indisponíveis até o encerramento da votação.
+	- Os indicadores e resultados finais da revisão devem permanecer indisponíveis até o encerramento da votação cega.
 
 	- Todos os participantes devem visualizar a lista de membros da revisão, incluindo nome, papel e status de participação.
 
