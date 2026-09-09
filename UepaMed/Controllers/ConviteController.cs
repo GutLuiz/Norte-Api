@@ -41,12 +41,36 @@ namespace UepaMed.Controllers
         [HttpPost("/api/convites/{conviteId}/aceitar")]
         public async Task<IActionResult> AceitarConvite(int conviteId)
         {
-            await _service.AceitarConviteAsync(conviteId);
-
-            return Ok(new
+            try
             {
-                mensagem = "Convite aceito com sucesso."
-            });
+                await _service.AceitarConviteAsync(conviteId);
+
+                return Ok(new
+                {
+                    mensagem = "Convite aceito com sucesso."
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new
+                {
+                    mensagem = ex.Message
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new
+                {
+                    mensagem = ex.Message
+                });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new
+                {
+                    mensagem = ex.Message
+                });
+            }
         }
 
         [HttpPost("/api/convites/{conviteId}/recusar")]
