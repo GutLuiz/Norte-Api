@@ -506,6 +506,28 @@
                 "description": "Este endpoint realiza o login de usuário\n\nResultado esperado para uma requisição válida:\n\n- Retornar status 200 (OK).\n    \n- Logar o usuário no sistema.\n    \n- Retornar os dados do usuário criado.\n    \n- Não retornar a senha no corpo da resposta."
               },
               "response": []
+            },
+            {
+              "name": "Logout",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:5080/api/auth/logout",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5080",
+                  "path": [
+                    "api",
+                    "auth",
+                    "logout"
+                  ]
+                },
+                "description": "Este endpoint é responsavel pelo logout de uma conta\n\nResultado esperado para uma requisição válida:\n\n- Retornar status code 204(No Content)\n    \n- API apaga os cookies e invalida o refresh token no banco\n    \n- Não retorna nenhuma mensagem"
+              },
+              "response": []
             }
           ]
         }
@@ -922,6 +944,174 @@
                 "description": "Este endpoint realiza o teste de aceitar um convite enquanto a revisão especpifica está em votação\n\nResultado esperado para uma requisição válida:\n\n- Retornar o status code 409 (Conflict)\n    \n- O sistema não aceita esse usuário como um novo membro da revisão\n    \n- Retornar uma mensagem do sistema sobre o motivo de não aceitar o convite"
               },
               "response": []
+            },
+            {
+              "name": "deletar membro (proprietario)",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:5080/api/revisoes/32/membros/4",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5080",
+                  "path": [
+                    "api",
+                    "revisoes",
+                    "32",
+                    "membros",
+                    "4"
+                  ]
+                },
+                "description": "Este endpoint realiza a exclusão de um membro em uma revisão no papel PROPRIETÁRIO\n\nResultado esperado para uma requisição válida:"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "analise de dados",
+          "item": [
+            {
+              "name": "importacao",
+              "item": [
+                {
+                  "name": "importar arquivo (proprietário e revisor)",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "arquivo",
+                          "type": "file",
+                          "src": [
+                            "/C:/Users/luizg/Downloads/export.nbib"
+                          ]
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/revisoes/8/importacoes",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "revisoes",
+                        "8",
+                        "importacoes"
+                      ]
+                    },
+                    "description": "Este endpoint realiza uma importação de artigos com os papeis de PROPRIETÁRIO OU REVISOR\n\nResultado esperado para uma requisição válida:\n\n- Retornar status code 200 (OK)\n    \n- Adicionar o arquivo na revisão do sistema\n    \n- Retornar a mensagem do corpo desse arquivo"
+                  },
+                  "response": []
+                },
+                {
+                  "name": "importar arquivo (avaliador e colaborador)",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "arquivo",
+                          "type": "file",
+                          "src": [
+                            "/C:/Users/luizg/Downloads/export scielo.ris"
+                          ]
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/revisoes/22/importacoes",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "revisoes",
+                        "22",
+                        "importacoes"
+                      ]
+                    },
+                    "description": "Este endpoint realiza a importação de arquivo com os papeis AVALIADOR e COLABORADOR\n\nResultado esperado para uma requisição válida:\n\n- Retornar um status code 401(Unauthorized)\n    \n- Não importar o arquivo no sistema\n    \n- Retornar a mensagem sobre a validação"
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "duplicadas",
+              "item": [
+                {
+                  "name": "duplicadas (outros membros)",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": ""
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "duplicadas (proprietário)",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": ""
+                    },
+                    "description": "Este endpoint realiza a chamada dos artigos duplicados como membro proprietário\n\nResultado esperado para uma requisição válida:\n\n- Retornar status code"
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "votacao",
+              "item": [
+                {
+                  "name": "iniciar votacao (proprietario)",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"revisaoid\": 32\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:5080/api/votacoes/iniciar",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "5080",
+                      "path": [
+                        "api",
+                        "votacoes",
+                        "iniciar"
+                      ]
+                    },
+                    "description": "Este endpoint realiza uma requisição de inicio de votação com o papel PROPRIETÁRIO\n\nResultado esperado da requisição válida:\n\n- Retornar status code 201(Created)\n    \n- Criar uma votação na revisão\n    \n- Retornar o corpo da revisão"
+                  },
+                  "response": []
+                }
+              ]
             }
           ]
         }
