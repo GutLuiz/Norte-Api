@@ -1,7 +1,9 @@
 ﻿using UepaMed.Application.Dtos.Votacoes;
 using UepaMed.Application.Interfaces.Artigos;
+using UepaMed.Application.Interfaces.Revisoes;
 using UepaMed.Application.Interfaces.Votacoes;
 using UepaMed.Domain.Entities.Votacoes;
+using UepaMed.Domain.Enums.Revisoes;
 
 namespace UepaMed.Application.Services
 {
@@ -12,18 +14,53 @@ namespace UepaMed.Application.Services
 
         private readonly IArtigoRepository
             _artigoRepository;
+        private readonly IRevisaoMembroRepository
+            _revisaoMembroRepository;
 
         public VotacaoService(
             IVotacaoRepository votacaoRepository,
-            IArtigoRepository artigoRepository)
+            IArtigoRepository artigoRepository,
+            IRevisaoMembroRepository revisaoMembroRepository)
         {
             _votacaoRepository = votacaoRepository;
             _artigoRepository = artigoRepository;
+            _revisaoMembroRepository = revisaoMembroRepository;
+
         }
 
         public async Task<VotacaoRespostaDto> IniciarAsync(
             IniciarVotacaoDto dto)
         {
+            var membros = await _revisaoMembroRepository
+            .ListarMembrosDaRevisaoAsync(dto.RevisaoId);
+
+            var temProprietario = membros.Any(membro =>
+                membro.Papel == PapelMembroRevisao.Proprietario);
+
+            if (!temProprietario)
+            {
+                throw new InvalidOperationException(
+                    "Não é possível iniciar a votação sem um proprietário na revisão.");
+            }
+
+            var temRevisor = membros.Any(membro =>
+                membro.Papel == PapelMembroRevisao.Revisor);
+
+            var temAvaliador = membros.Any(membro =>
+                membro.Papel == PapelMembroRevisao.Avaliador);
+
+            if (temRevisor && !temAvaliador)
+            {
+                throw new InvalidOperationException(
+                    "Não é possível iniciar a votação com revisor sem um avaliador na revisão.");
+            }
+
+            if (temAvaliador && !temRevisor)
+            {
+                throw new InvalidOperationException(
+                    "Não é possível iniciar a votação com avaliador sem um revisor na revisão.");
+            }
+
             if (dto.RevisaoId <= 0)
             {
                 throw new ArgumentException(

@@ -14,3 +14,7 @@
     - O corpo da resposta deve conter somente informações não sensíveis
     do usuário.
     - O corpo da resposta não deve conter token, senha ou hash da senha.
+	- O logout deve remover os cookies access_token e refresh_token do navegador.
+    - O logout deve invalidar o refresh token associado ao usuário no banco de dados.
+    - Após o logout, o usuário não deve conseguir acessar endpoints protegidos.
+    - Após o logout, não deve ser possível gerar novos tokens usando o refresh token anterior.

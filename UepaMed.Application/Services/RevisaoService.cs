@@ -122,6 +122,7 @@ namespace UepaMed.Application.Services
 
         public async Task<bool> DeletarRevisao(int id)
         {
+
             var usuarioIdClaim = _httpContextAccessor.HttpContext?
                 .User
                 .FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -207,6 +208,52 @@ namespace UepaMed.Application.Services
                 Papel = m.Papel
             }).ToList();
         }
+        public async Task RemoverMembroAsync(
+        int revisaoId,
+        int membroUsuarioId)
+        {
+            var usuarioIdClaim = _httpContextAccessor.HttpContext?
+                .User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(usuarioIdClaim, out var usuarioId))
+            {
+                throw new UnauthorizedAccessException("Usuário não autenticado.");
+            }
+
+            var solicitante = await _revisaoMembroRepository
+                .BuscarPorRevisaoEUsuarioAsync(revisaoId, usuarioId);
+
+            if (solicitante is null)
+            {
+                throw new UnauthorizedAccessException(
+                    "Usuário não pertence a esta revisão.");
+            }
+
+            if (solicitante.Papel != PapelMembroRevisao.Proprietario)
+            {
+                throw new UnauthorizedAccessException(
+                    "Apenas o proprietário pode remover membros da revisão.");
+            }
+
+            var membro = await _revisaoMembroRepository
+                .BuscarPorRevisaoEUsuarioAsync(revisaoId, membroUsuarioId);
+
+            if (membro is null)
+            {
+                throw new KeyNotFoundException(
+                    "Membro não encontrado nesta revisão.");
+            }
+
+            if (membro.Papel == PapelMembroRevisao.Proprietario)
+            {
+                throw new ArgumentException(
+                    "O proprietário não pode ser removido da revisão.");
+            }
+
+            await _revisaoMembroRepository.RemoverAsync(membro);
+            await _revisaoMembroRepository.SalvarAsync();
+        }
 
         private static void ValidarTitulo(string? titulo)
         {
@@ -235,6 +282,7 @@ namespace UepaMed.Application.Services
                     "O título da revisão deve conter pelo menos uma letra.");
             }
         }
+       
 
 
     }
