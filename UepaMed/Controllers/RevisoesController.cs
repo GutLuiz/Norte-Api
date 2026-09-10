@@ -103,5 +103,40 @@ namespace UepaMed.Controllers
 
             return NoContent();
         }
+        [HttpDelete("{revisaoId:int}/membros/{membroUsuarioId:int}")]
+        public async Task<IActionResult> RemoverMembro(
+        int revisaoId,
+        int membroUsuarioId)
+        {
+            try
+            {
+                await _revisaoService.RemoverMembroAsync(
+                    revisaoId,
+                    membroUsuarioId);
+
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException exception)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    mensagem = exception.Message
+                });
+            }
+            catch (KeyNotFoundException exception)
+            {
+                return NotFound(new
+                {
+                    mensagem = exception.Message
+                });
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(new
+                {
+                    mensagem = exception.Message
+                });
+            }
+        }
     }
 }

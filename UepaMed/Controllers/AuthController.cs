@@ -180,7 +180,38 @@ namespace UepaMed.Controllers
 
             return Ok(new TokenResponseDto(novoAccessToken, novoRefreshToken));
         }
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var refreshToken = Request.Cookies["refresh_token"];
 
+            if (!string.IsNullOrWhiteSpace(refreshToken))
+            {
+                var usuario = await _db.Usuarios
+                    .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+
+                if (usuario is not null)
+                {
+                    usuario.RefreshToken = null;
+                    usuario.RefreshTokenExpiraEm = null;
+
+                    await _db.SaveChangesAsync();
+                }
+            }
+
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Path = "/"
+            };
+
+            Response.Cookies.Delete("access_token", cookieOptions);
+            Response.Cookies.Delete("refresh_token", cookieOptions);
+
+            return NoContent();
+        }
         private static bool EmailValido(string email)
         {
             return MailAddress.TryCreate(email, out var endereco)
