@@ -24,6 +24,8 @@
 
 	- Somente o Proprietário pode resolver artigos duplicados identificados pelo sistema.
 
+	- Somente o proprietário e revivor podem excluir arquivos que foram incluidos na revisão
+
 	- Todos os participantes da revisão podem visualizar os artigos no cabeçalho `Lista de artigos`.
 
 	- Os artigos devem apresentar informações necessárias para o processo de revisão, seguindo como referência o fluxo do Rayyan.

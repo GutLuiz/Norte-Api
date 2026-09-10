@@ -16,7 +16,9 @@
 	-> Membros que participam da votação:
 	    -> Só pode iniciar a votação se houver um proprietário definido.
 		-> Só pode iniciar uma votação se houver artigos importados.
-        -> Se existir um revisor envolvido, também precisa existir um avaliador correspondente 
+        -> Só pode iniciar uma votação com revisor envolvido se tiver um avaliador na revisão
+		-> Só pode iniciar uma votação com avaliador se tiver um revisor envolvido
+		-> O proprietário pode inciar uma votação sozinho
 		-> Somente o PROPRIETÁRIO pode começar uma votação
 		-> Somente PROPRIETÁRIO e REVISOR podem votar
 		-> O voto tem que ser unico para cada artigo
