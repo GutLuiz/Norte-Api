@@ -27,10 +27,12 @@ namespace UepaMed.Infrastructure.Repositories.Votacoes
             int votacaoId)
         {
             return await _context.Votacoes
-                .Include(v => v.Votos)
-                .Include(v => v.Conflitos)
-                .FirstOrDefaultAsync(v =>
-                    v.Id == votacaoId);
+             .Include(v => v.Votos)
+             .Include(v => v.Conflitos)
+             .Include(v => v.Participantes)
+             .Include(v => v.Artigos)
+             .FirstOrDefaultAsync(v =>
+                 v.Id == votacaoId);
         }
 
         public async Task<Votacao?>
@@ -38,11 +40,13 @@ namespace UepaMed.Infrastructure.Repositories.Votacoes
                 int revisaoId)
         {
             return await _context.Votacoes
-                .Include(v => v.Votos)
-                .Include(v => v.Conflitos)
-                .FirstOrDefaultAsync(v =>
-                    v.RevisaoId == revisaoId &&
-                    v.Status != StatusVotacao.Finalizada);
+            .Include(v => v.Votos)
+            .Include(v => v.Conflitos)
+            .Include(v => v.Participantes)
+            .Include(v => v.Artigos)
+            .FirstOrDefaultAsync(v =>
+                v.RevisaoId == revisaoId &&
+                v.Status != StatusVotacao.Finalizada);
         }
 
         public async Task AtualizarAsync(
