@@ -9,7 +9,6 @@ namespace UepaMed.Infrastructure.Data
 {
     public class AppDbContext : DbContext
     {
-        // O QUE É ISSO? (acho que é uma propiedade do entity?)
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Usuario> Usuarios => Set<Usuario>();
@@ -24,6 +23,8 @@ namespace UepaMed.Infrastructure.Data
         public DbSet<Voto> Votos { get; set; }
 
         public DbSet<ConflitoVotacao> ConflitosVotacao { get; set; }
+        public DbSet<VotacaoParticipante> VotacaoParticipantes { get; set; }
+        public DbSet<VotacaoArtigo> VotacaoArtigos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -99,6 +100,14 @@ namespace UepaMed.Infrastructure.Data
                     .WithOne(c => c.Votacao)
                     .HasForeignKey(c => c.VotacaoId)
                     .OnDelete(DeleteBehavior.Cascade);
+                entity.HasMany(v => v.Participantes)
+                    .WithOne(p => p.Votacao)
+                    .HasForeignKey(p => p.VotacaoId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasMany(v => v.Artigos)
+                    .WithOne(artigo => artigo.Votacao)
+                    .HasForeignKey(artigo => artigo.VotacaoId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Voto>(entity =>
@@ -123,6 +132,46 @@ namespace UepaMed.Infrastructure.Data
                 entity.HasOne(v => v.Artigo)
                     .WithMany()
                     .HasForeignKey(v => v.ArtigoId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<VotacaoParticipante>(entity =>
+            {
+                entity.HasKey(participante => participante.Id);
+
+                entity.Property(participante => participante.Papel)
+                    .HasConversion<int>()
+                    .IsRequired();
+
+                entity.Property(participante => participante.EhVotanteObrigatorio)
+                    .IsRequired();
+
+                entity.HasIndex(participante => new
+                {
+                    participante.VotacaoId,
+                    participante.UsuarioId
+                })
+                .IsUnique();
+
+                entity.HasOne<Usuario>()
+                    .WithMany()
+                    .HasForeignKey(participante => participante.UsuarioId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+            modelBuilder.Entity<VotacaoArtigo>(entity =>
+            {
+                entity.HasKey(artigo => artigo.Id);
+
+                entity.HasIndex(artigo => new
+                {
+                    artigo.VotacaoId,
+                    artigo.ArtigoId
+                })
+                .IsUnique();
+
+                entity.HasOne(artigo => artigo.Artigo)
+                    .WithMany()
+                    .HasForeignKey(artigo => artigo.ArtigoId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 

@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UepaMed.Infrastructure.Data;
 
 #nullable disable
 
-namespace UepaMed.Infrastructure.Migrations
+namespace UepaMed.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260911033615_AdicionarParticipantesDaVotacao")]
+    partial class AdicionarParticipantesDaVotacao
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -335,30 +338,6 @@ namespace UepaMed.Infrastructure.Migrations
                     b.ToTable("Votacoes");
                 });
 
-            modelBuilder.Entity("UepaMed.Domain.Entities.Votacoes.VotacaoArtigo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ArtigoId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("VotacaoId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArtigoId");
-
-                    b.HasIndex("VotacaoId", "ArtigoId")
-                        .IsUnique();
-
-                    b.ToTable("VotacaoArtigos");
-                });
-
             modelBuilder.Entity("UepaMed.Domain.Entities.Votacoes.VotacaoParticipante", b =>
                 {
                     b.Property<int>("Id")
@@ -537,25 +516,6 @@ namespace UepaMed.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("UepaMed.Domain.Entities.Votacoes.VotacaoArtigo", b =>
-                {
-                    b.HasOne("UepaMed.Domain.Entities.Artigos.Artigo", "Artigo")
-                        .WithMany()
-                        .HasForeignKey("ArtigoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("UepaMed.Domain.Entities.Votacoes.Votacao", "Votacao")
-                        .WithMany("Artigos")
-                        .HasForeignKey("VotacaoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Artigo");
-
-                    b.Navigation("Votacao");
-                });
-
             modelBuilder.Entity("UepaMed.Domain.Entities.Votacoes.VotacaoParticipante", b =>
                 {
                     b.HasOne("UepaMed.Domain.Entities.Usuarios.Usuario", null)
@@ -599,8 +559,6 @@ namespace UepaMed.Infrastructure.Migrations
 
             modelBuilder.Entity("UepaMed.Domain.Entities.Votacoes.Votacao", b =>
                 {
-                    b.Navigation("Artigos");
-
                     b.Navigation("Conflitos");
 
                     b.Navigation("Participantes");
