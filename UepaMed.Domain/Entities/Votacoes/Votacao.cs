@@ -1,5 +1,6 @@
 ﻿using UepaMed.Domain.Enums;
 using UepaMed.Domain.Enums.Votacao;
+using UepaMed.Domain.Enums.Revisoes;
 
 
 namespace UepaMed.Domain.Entities.Votacoes
@@ -19,6 +20,11 @@ namespace UepaMed.Domain.Entities.Votacoes
 
         public ICollection<Voto> Votos { get; private set; }
             = new List<Voto>();
+        public ICollection<VotacaoArtigo> Artigos { get; private set; }
+            = new List<VotacaoArtigo>();
+
+        public ICollection<VotacaoParticipante> Participantes { get; private set; }
+            = new List<VotacaoParticipante>();
 
         public ICollection<ConflitoVotacao> Conflitos
         {
@@ -45,6 +51,14 @@ namespace UepaMed.Domain.Entities.Votacoes
 
         public void Iniciar()
         {
+            var possuiProprietario = Participantes.Any(participante =>
+                 participante.Papel == PapelMembroRevisao.Proprietario);
+
+            if (!possuiProprietario)
+            {
+                throw new InvalidOperationException(
+                    "Não é possível iniciar a votação sem um proprietário.");
+            }
             if (Status != StatusVotacao.NaoIniciada)
             {
                 throw new InvalidOperationException(
@@ -236,6 +250,47 @@ namespace UepaMed.Domain.Entities.Votacoes
 
             Status = StatusVotacao.Finalizada;
             DataFinalizacao = DateTime.UtcNow;
+        }
+        public void AdicionarParticipante(
+        int usuarioId,
+        PapelMembroRevisao papel)
+        {
+            if (Status != StatusVotacao.NaoIniciada)
+            {
+                throw new InvalidOperationException(
+                    "Não é possível adicionar participantes após iniciar a votação.");
+            }
+
+            var participanteJaExiste = Participantes.Any(participante =>
+                participante.UsuarioId == usuarioId);
+
+            if (participanteJaExiste)
+            {
+                throw new InvalidOperationException(
+                    "O usuário já participa desta votação.");
+            }
+
+            Participantes.Add(
+                new VotacaoParticipante(usuarioId, papel));
+        }
+        public void AdicionarArtigo(int artigoId)
+        {
+            if (Status != StatusVotacao.NaoIniciada)
+            {
+                throw new InvalidOperationException(
+                    "Não é possível adicionar artigos após iniciar a votação.");
+            }
+
+            var artigoJaExiste = Artigos.Any(artigo =>
+                artigo.ArtigoId == artigoId);
+
+            if (artigoJaExiste)
+            {
+                throw new InvalidOperationException(
+                    "O artigo já participa desta votação.");
+            }
+
+            Artigos.Add(new VotacaoArtigo(artigoId));
         }
     }
 }
