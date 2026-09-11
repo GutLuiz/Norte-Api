@@ -26,5 +26,9 @@
 		-> Com os participantes válidos definidos, o resultado é por maioria simples: 
 		vence a opção com mais votos.
 		-> A votação acaba quando todos os membros que participam da votação votarem
+		-> Sistema deve separar os artigos em conflito
 	-> Membros que participam dos artigos em conflito:
 		-> Somente o avaliador deve finalizar os artigos em conflito
+	-> Lista de artigos apos o final da votação
+		-> mostra na lista os artigos incluidos, excluidos ou todos por meio de filtro
+
