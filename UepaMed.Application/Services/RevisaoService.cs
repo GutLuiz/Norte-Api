@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using UepaMed.Application.Dtos.Revisao;
+using UepaMed.Application.Dtos.Revisoes;
+using UepaMed.Application.Interfaces.Artigos;
 using UepaMed.Application.Interfaces.Revisoes;
 using UepaMed.Domain.Entities;
 using UepaMed.Domain.Entities.Revisoes;
@@ -14,14 +16,18 @@ namespace UepaMed.Application.Services
         private readonly IRevisaoMembroRepository _revisaoMembroRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
+        private readonly IArtigoRepository _artigoRepository;
+
         public RevisaoService(
             IRevisaoRepository revisaoRepository,
             IHttpContextAccessor httpContextAccessor,
-            IRevisaoMembroRepository revisaoMembroRepository)
+            IRevisaoMembroRepository revisaoMembroRepository,
+            IArtigoRepository artigoRepository)
         {
             _revisaoRepository = revisaoRepository;
             _httpContextAccessor = httpContextAccessor;
             _revisaoMembroRepository = revisaoMembroRepository;
+            _artigoRepository = artigoRepository;
         }
 
         public async Task<Revisao> CriarRevisao(CriarRevisaoDto dto)
@@ -253,6 +259,32 @@ namespace UepaMed.Application.Services
 
             await _revisaoMembroRepository.RemoverAsync(membro);
             await _revisaoMembroRepository.SalvarAsync();
+        }
+
+        public async Task<ResumoDadosRevisaoDto>
+        ObterResumoDadosAsync(int revisaoId)
+        {
+            var usuarioIdClaim = _httpContextAccessor.HttpContext?
+                .User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(usuarioIdClaim, out var usuarioId))
+            {
+                throw new UnauthorizedAccessException(
+                    "Usuário não autenticado.");
+            }
+
+            var pertenceARevisao = await _revisaoMembroRepository
+                .ExisteMembroAsync(revisaoId, usuarioId);
+
+            if (!pertenceARevisao)
+            {
+                throw new UnauthorizedAccessException(
+                    "Usuário não pertence a esta revisão.");
+            }
+
+            return await _artigoRepository
+                .ObterResumoDadosPorRevisaoAsync(revisaoId);
         }
 
         private static void ValidarTitulo(string? titulo)

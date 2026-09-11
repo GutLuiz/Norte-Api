@@ -1,11 +1,14 @@
-﻿using UepaMed.Application.Dtos.Votacoes;
+﻿using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using UepaMed.Application.Dtos.Artigos;
+using UepaMed.Application.Dtos.Votacoes;
 using UepaMed.Application.Interfaces.Artigos;
 using UepaMed.Application.Interfaces.Revisoes;
 using UepaMed.Application.Interfaces.Votacoes;
 using UepaMed.Domain.Entities.Votacoes;
+using UepaMed.Domain.Enums;
 using UepaMed.Domain.Enums.Revisoes;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
+using UepaMed.Domain.Enums.Votacao;
 
 namespace UepaMed.Application.Services
 {
@@ -168,11 +171,11 @@ namespace UepaMed.Application.Services
             }
 
             var voto = votacao.RegistrarVoto(
-            dto.ArtigoId,
-            dto.UsuarioId,
-            dto.Opcao);
+                dto.ArtigoId,
+                dto.UsuarioId,
+                dto.Opcao);
 
-            ApurarVotacaoSeTodosVotaram(votacao);
+            await ApurarVotacaoSeTodosVotaram(votacao);
 
             await _votacaoRepository
                 .AtualizarAsync(votacao);
@@ -418,6 +421,175 @@ namespace UepaMed.Application.Services
                     votacao.DataFinalizacao
             };
         }
+        public async Task<List<ArtigoConflitoRespostaDto>>
+         ListarArtigosEmConflitoAsync(int votacaoId)
+        {
+            var usuarioIdClaim = _httpContextAccessor.HttpContext?
+                .User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(usuarioIdClaim, out var usuarioId))
+            {
+                throw new UnauthorizedAccessException(
+                    "Usuário não autenticado.");
+            }
+
+            var votacao = await _votacaoRepository
+                .ObterPorIdAsync(votacaoId);
+
+            if (votacao is null)
+            {
+                throw new KeyNotFoundException(
+                    "Votação não encontrada.");
+            }
+
+            var membro = await _revisaoMembroRepository
+                .BuscarPorRevisaoEUsuarioAsync(
+                    votacao.RevisaoId,
+                    usuarioId);
+
+            if (membro?.Papel != PapelMembroRevisao.Avaliador)
+            {
+                throw new UnauthorizedAccessException(
+                    "Apenas o avaliador pode visualizar os artigos em conflito.");
+            }
+
+            return votacao.Conflitos
+                .Where(conflito => !conflito.Resolvido)
+                .OrderBy(conflito => conflito.DataCriacao)
+                .Select(conflito => new ArtigoConflitoRespostaDto
+                {
+                    ConflitoId = conflito.Id,
+                    VotacaoId = conflito.VotacaoId,
+                    ArtigoId = conflito.ArtigoId,
+                    Motivo = conflito.Motivo,
+                    Resolvido = conflito.Resolvido,
+
+                    Artigo = new ArtigoComparacaoDto
+                    {
+                        Id = conflito.Artigo.Id,
+                        ArquivoImportacaoId =
+                            conflito.Artigo.ArquivoImportacaoId,
+                        Titulo = conflito.Artigo.Titulo,
+                        Resumo = conflito.Artigo.Resumo,
+                        Autores = conflito.Artigo.Autores,
+                        Revista = conflito.Artigo.Revista,
+                        AnoPublicacao =
+                            conflito.Artigo.AnoPublicacao,
+                        DOI = conflito.Artigo.DOI,
+                        PMID = conflito.Artigo.PMID
+                    }
+                })
+                .ToList();
+        }
+
+        public async Task<ConflitoVotacaoRespostaDto>
+            ResolverConflitoAsync(
+                int votacaoId,
+                int conflitoId,
+                ResolverConflitoDto dto)
+        {
+            if (votacaoId <= 0)
+            {
+                throw new ArgumentException(
+                    "O identificador da votação é inválido.",
+                    nameof(votacaoId));
+            }
+
+            if (conflitoId <= 0)
+            {
+                throw new ArgumentException(
+                    "O identificador do conflito é inválido.",
+                    nameof(conflitoId));
+            }
+
+            if (dto.DecisaoFinal != OpcaoVoto.Incluir &&
+                dto.DecisaoFinal != OpcaoVoto.Excluir)
+            {
+                throw new ArgumentException(
+                    "O avaliador deve incluir ou excluir o artigo.");
+            }
+
+            var usuarioIdClaim = _httpContextAccessor.HttpContext?
+                .User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(usuarioIdClaim, out var usuarioId))
+            {
+                throw new UnauthorizedAccessException(
+                    "Usuário não autenticado.");
+            }
+
+            var votacao = await _votacaoRepository
+                .ObterPorIdAsync(votacaoId);
+
+            if (votacao is null)
+            {
+                throw new KeyNotFoundException(
+                    "Votação não encontrada.");
+            }
+
+            if (votacao.Status != StatusVotacao.ResolucaoConflitos)
+            {
+                throw new InvalidOperationException(
+                    "Esta votação não está na etapa de resolução de conflitos.");
+            }
+
+            var membro = await _revisaoMembroRepository
+                .BuscarPorRevisaoEUsuarioAsync(
+                    votacao.RevisaoId,
+                    usuarioId);
+
+            if (membro?.Papel != PapelMembroRevisao.Avaliador)
+            {
+                throw new UnauthorizedAccessException(
+                    "Apenas o avaliador pode resolver conflitos.");
+            }
+
+            var conflito = votacao.Conflitos
+                .FirstOrDefault(c => c.Id == conflitoId);
+
+            if (conflito is null)
+            {
+                throw new KeyNotFoundException(
+                    "Conflito não encontrado nesta votação.");
+            }
+
+            votacao.ResolverConflito(
+                conflitoId,
+                usuarioId,
+                dto.DecisaoFinal);
+
+            var statusArtigo = dto.DecisaoFinal ==
+                OpcaoVoto.Incluir
+                ? StatusArtigo.Incluido
+                : StatusArtigo.Excluido;
+
+            await _artigoRepository.MudarStatusAsync(
+                conflito.ArtigoId,
+                statusArtigo);
+
+            if (votacao.TodosConflitosForamResolvidos())
+            {
+                votacao.Finalizar();
+            }
+
+            await _votacaoRepository
+                .AtualizarAsync(votacao);
+
+            return new ConflitoVotacaoRespostaDto
+            {
+                Id = conflito.Id,
+                VotacaoId = conflito.VotacaoId,
+                ArtigoId = conflito.ArtigoId,
+                Motivo = conflito.Motivo,
+                Resolvido = conflito.Resolvido,
+                DecisaoFinal = conflito.DecisaoFinal,
+                AvaliadorId = conflito.AvaliadorId,
+                DataCriacao = conflito.DataCriacao,
+                DataResolucao = conflito.DataResolucao
+            };
+        }
 
         private static VotoRespostaDto
             MapearVoto(
@@ -433,8 +605,8 @@ namespace UepaMed.Application.Services
                 DataRegistro = voto.DataRegistro
             };
         }
-        private static void ApurarVotacaoSeTodosVotaram(
-        Votacao votacao)
+        private async Task ApurarVotacaoSeTodosVotaram(
+      Votacao votacao)
         {
             var votantesObrigatorios = votacao.Participantes
                 .Where(participante =>
@@ -458,7 +630,14 @@ namespace UepaMed.Application.Services
 
             foreach (var artigoId in artigosDaVotacao)
             {
-                votacao.ApurarArtigo(artigoId);
+                var statusFinal = votacao.ApurarArtigo(artigoId);
+
+                if (statusFinal.HasValue)
+                {
+                    await _artigoRepository.MudarStatusAsync(
+                        artigoId,
+                        statusFinal.Value);
+                }
             }
 
             if (votacao.Conflitos.Any())
