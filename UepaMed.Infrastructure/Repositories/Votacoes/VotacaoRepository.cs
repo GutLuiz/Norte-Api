@@ -29,6 +29,7 @@ namespace UepaMed.Infrastructure.Repositories.Votacoes
             return await _context.Votacoes
              .Include(v => v.Votos)
              .Include(v => v.Conflitos)
+                .ThenInclude(conflito => conflito.Artigo)
              .Include(v => v.Participantes)
              .Include(v => v.Artigos)
              .FirstOrDefaultAsync(v =>

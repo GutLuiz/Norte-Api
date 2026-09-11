@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UepaMed.Application.Dtos.importacao;
+using UepaMed.Application.Dtos.Revisoes;
 using UepaMed.Application.Interfaces.Artigos;
 using UepaMed.Domain.Entities.Artigos;
 using UepaMed.Domain.Enums;
@@ -82,6 +83,38 @@ namespace UepaMed.Infrastructure.Repositories.Artigos
             _context.Artigos.RemoveRange(artigos);
 
             await _context.SaveChangesAsync();
+        }
+        public async Task<ResumoDadosRevisaoDto>
+    ObterResumoDadosPorRevisaoAsync(int revisaoId)
+        {
+            var artigos = _context.Artigos
+                .AsNoTracking()
+                .Where(a => a.RevisaoId == revisaoId);
+
+            var conflitosIdentificados = await _context.Votacoes
+                .AsNoTracking()
+                .Where(v => v.RevisaoId == revisaoId)
+                .SelectMany(v => v.Conflitos)
+                .CountAsync();
+
+            return new ResumoDadosRevisaoDto
+            {
+                ArquivosImportados = await artigos
+                    .Select(a => a.ArquivoImportacaoId)
+                    .Distinct()
+                    .CountAsync(),
+
+                ArtigosPendentes = await artigos.CountAsync(a =>
+                    a.Status == StatusArtigo.Pendente),
+
+                ArtigosIncluidos = await artigos.CountAsync(a =>
+                    a.Status == StatusArtigo.Incluido),
+
+                ArtigosExcluidos = await artigos.CountAsync(a =>
+                    a.Status == StatusArtigo.Excluido),
+
+                ConflitosIdentificados = conflitosIdentificados
+            };
         }
     }
 }

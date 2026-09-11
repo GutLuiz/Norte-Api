@@ -1,4 +1,5 @@
-﻿using UepaMed.Domain.Entities.Revisoes;
+﻿using UepaMed.Application.Dtos.Revisoes;
+using UepaMed.Domain.Entities.Revisoes;
 
 namespace UepaMed.Application.Interfaces.Revisoes
 {
@@ -13,5 +14,7 @@ namespace UepaMed.Application.Interfaces.Revisoes
         Task RemoverAsync(Revisao revisao);
 
         Task SalvarAsync();
+
+        
     }
 }

@@ -1,4 +1,5 @@
 ﻿using UepaMed.Application.Dtos.importacao;
+using UepaMed.Application.Dtos.Revisoes;
 using UepaMed.Domain.Entities.Artigos;
 using UepaMed.Domain.Enums;
 
@@ -17,5 +18,8 @@ namespace UepaMed.Application.Interfaces.Artigos
         Task MudarStatusAsync(int artigoId, StatusArtigo status);
 
         Task RemoverPorArquivoImportacaoAsync(int arquivoImportacaoId);
+
+        Task<ResumoDadosRevisaoDto> ObterResumoDadosPorRevisaoAsync(
+            int revisaoId);
     }
 }
