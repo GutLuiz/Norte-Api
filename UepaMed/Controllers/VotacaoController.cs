@@ -243,5 +243,60 @@ namespace UepaMed.Controllers
                 });
             }
         }
+        [HttpGet("{votacaoId:int}/conflitos/artigos")]
+        public async Task<ActionResult<List<ArtigoConflitoRespostaDto>>>
+         ListarArtigosEmConflito(int votacaoId)
+        {
+            try
+            {
+                var artigos = await _votacaoService
+                    .ListarArtigosEmConflitoAsync(votacaoId);
+
+                return Ok(artigos);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { mensagem = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { mensagem = ex.Message });
+            }
+        }
+
+        [HttpPost("{votacaoId:int}/conflitos/{conflitoId:int}/resolver")]
+        public async Task<ActionResult<ConflitoVotacaoRespostaDto>>
+        ResolverConflito(
+            int votacaoId,
+            int conflitoId,
+            [FromBody] ResolverConflitoDto dto)
+        {
+            try
+            {
+                var conflitoResolvido = await _votacaoService
+                    .ResolverConflitoAsync(
+                        votacaoId,
+                        conflitoId,
+                        dto);
+
+                return Ok(conflitoResolvido);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { mensagem = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { mensagem = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { mensagem = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { mensagem = ex.Message });
+            }
+        }
     }
 }

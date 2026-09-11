@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using UepaMed.Application.Dtos.Revisao;
+using UepaMed.Application.Dtos.Revisoes;
 using UepaMed.Application.Services;
 
 namespace UepaMed.Controllers
@@ -136,6 +137,22 @@ namespace UepaMed.Controllers
                 {
                     mensagem = exception.Message
                 });
+            }
+        }
+        [HttpGet("{revisaoId:int}/resumo-dados")]
+        public async Task<ActionResult<ResumoDadosRevisaoDto>>
+         ObterResumoDados(int revisaoId)
+        {
+            try
+            {
+                var resumo = await _revisaoService
+                    .ObterResumoDadosAsync(revisaoId);
+
+                return Ok(resumo);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { mensagem = ex.Message });
             }
         }
     }
