@@ -90,6 +90,13 @@ namespace UepaMed.Controllers
                     mensagem = exception.Message
                 });
             }
+            catch (UnauthorizedAccessException exception)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    mensagem = exception.Message
+                });
+            }
         }
 
         [HttpGet("{votacaoId:int}")]
@@ -177,7 +184,64 @@ namespace UepaMed.Controllers
 
             return Ok(votacao);
         }
+        [HttpGet("{votacaoId:int}/progresso")]
+        public async Task<ActionResult<ProgressoVotacaoDto>>
+         ObterProgresso(int votacaoId)
+        {
+            try
+            {
+                var progresso = await _votacaoService
+                    .ObterProgressoAsync(votacaoId);
 
+                return Ok(progresso);
+            }
+            catch (KeyNotFoundException exception)
+            {
+                return NotFound(new
+                {
+                    mensagem = exception.Message
+                });
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(new
+                {
+                    mensagem = exception.Message
+                });
+            }
+        }
+        [HttpGet("{votacaoId:int}/conflitos")]
+        public async Task<ActionResult<List<ConflitoVotacaoRespostaDto>>>
+         ListarConflitos(int votacaoId)
+        {
+            try
+            {
+                var conflitos = await _votacaoService
+                    .ListarConflitosAsync(votacaoId);
 
+                return Ok(conflitos);
+            }
+            catch (UnauthorizedAccessException exception)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    mensagem = exception.Message
+                });
+            }
+            catch (KeyNotFoundException exception)
+            {
+                return NotFound(new
+                {
+                    mensagem = exception.Message
+                });
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(new
+                {
+                    mensagem = exception.Message
+                });
+            }
+        }
     }
 }
