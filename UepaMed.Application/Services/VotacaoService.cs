@@ -4,6 +4,8 @@ using UepaMed.Application.Interfaces.Revisoes;
 using UepaMed.Application.Interfaces.Votacoes;
 using UepaMed.Domain.Entities.Votacoes;
 using UepaMed.Domain.Enums.Revisoes;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace UepaMed.Application.Services
 {
@@ -16,21 +18,32 @@ namespace UepaMed.Application.Services
             _artigoRepository;
         private readonly IRevisaoMembroRepository
             _revisaoMembroRepository;
+        private readonly IHttpContextAccessor
+        _httpContextAccessor;
 
         public VotacaoService(
             IVotacaoRepository votacaoRepository,
             IArtigoRepository artigoRepository,
-            IRevisaoMembroRepository revisaoMembroRepository)
+            IRevisaoMembroRepository revisaoMembroRepository,
+            IHttpContextAccessor httpContextAccessor)
         {
             _votacaoRepository = votacaoRepository;
             _artigoRepository = artigoRepository;
             _revisaoMembroRepository = revisaoMembroRepository;
+            _httpContextAccessor = httpContextAccessor;
 
         }
 
         public async Task<VotacaoRespostaDto> IniciarAsync(
             IniciarVotacaoDto dto)
         {
+            if (dto.RevisaoId <= 0)
+            {
+                throw new ArgumentException(
+                    "O identificador da revisão é inválido.",
+                    nameof(dto.RevisaoId));
+            }
+
             var membros = await _revisaoMembroRepository
             .ListarMembrosDaRevisaoAsync(dto.RevisaoId);
 
@@ -87,13 +100,24 @@ namespace UepaMed.Application.Services
                     "Não é possível iniciar a votação porque a revisão não possui artigos.");
             }
 
-            var votacao = new Votacao(
-                dto.RevisaoId);
+            var votacao = new Votacao(dto.RevisaoId);
+
+            foreach (var membro in membros)
+            {
+                votacao.AdicionarParticipante(
+                    membro.UsuarioId,
+                    membro.Papel);
+            }
+
+            foreach (var artigo in artigos)
+            {
+                votacao.AdicionarArtigo(artigo.Id);
+            }
+
 
             votacao.Iniciar();
 
-            await _votacaoRepository
-                .AdicionarAsync(votacao);
+            await _votacaoRepository.AdicionarAsync(votacao);
 
             return MapearVotacao(votacao);
         }
@@ -110,6 +134,21 @@ namespace UepaMed.Application.Services
             {
                 throw new KeyNotFoundException(
                     "Votação não encontrada.");
+            }
+            var participante = votacao.Participantes
+            .FirstOrDefault(participante =>
+                participante.UsuarioId == dto.UsuarioId);
+
+            if (participante is null)
+            {
+                throw new UnauthorizedAccessException(
+                    "O usuário não participa desta votação.");
+            }
+
+            if (!participante.EhVotanteObrigatorio)
+            {
+                throw new UnauthorizedAccessException(
+                    "Este usuário não pode votar na etapa inicial da votação.");
             }
 
             var artigo = await _artigoRepository
@@ -129,9 +168,11 @@ namespace UepaMed.Application.Services
             }
 
             var voto = votacao.RegistrarVoto(
-                dto.ArtigoId,
-                dto.UsuarioId,
-                dto.Opcao);
+            dto.ArtigoId,
+            dto.UsuarioId,
+            dto.Opcao);
+
+            ApurarVotacaoSeTodosVotaram(votacao);
 
             await _votacaoRepository
                 .AtualizarAsync(votacao);
@@ -206,6 +247,162 @@ namespace UepaMed.Application.Services
 
             return MapearVotacao(votacao);
         }
+        public async Task<ProgressoVotacaoDto>
+         ObterProgressoAsync(int votacaoId)
+        {
+            if (votacaoId <= 0)
+            {
+                throw new ArgumentException(
+                    "O identificador da votação é inválido.",
+                    nameof(votacaoId));
+            }
+
+            var votacao = await _votacaoRepository
+                .ObterPorIdAsync(votacaoId);
+
+            if (votacao is null)
+            {
+                throw new KeyNotFoundException(
+                    "Votação não encontrada.");
+            }
+
+            var votantesObrigatorios = votacao.Participantes
+                .Where(participante =>
+                    participante.EhVotanteObrigatorio)
+                .ToList();
+
+            var artigosIds = votacao.Artigos
+                .Select(artigo => artigo.ArtigoId)
+                .ToHashSet();
+
+            var membrosAtuais = await _revisaoMembroRepository
+                .ListarMembrosDaRevisaoAsync(votacao.RevisaoId);
+
+            var progressoVotantes = votantesObrigatorios
+                .Select(participante =>
+                {
+                    var votosRealizados = votacao.Votos.Count(voto =>
+                        voto.UsuarioId == participante.UsuarioId
+                        && artigosIds.Contains(voto.ArtigoId));
+
+                    var votosEsperados = artigosIds.Count;
+
+                    var membroAtual = membrosAtuais.FirstOrDefault(membro =>
+                        membro.UsuarioId == participante.UsuarioId);
+
+                    var percentual = votosEsperados == 0
+                        ? 0
+                        : Math.Round(
+                            votosRealizados * 100m / votosEsperados,
+                            2);
+
+                    return new ProgressoVotanteDto
+                    {
+                        UsuarioId = participante.UsuarioId,
+                        Nome = membroAtual?.Usuario.Nome
+                            ?? "Usuário removido",
+                        Papel = participante.Papel,
+                        VotosRealizados = votosRealizados,
+                        VotosEsperados = votosEsperados,
+                        QuantidadeRestante =
+                            votosEsperados - votosRealizados,
+                        Percentual = percentual,
+                        Concluido =
+                            votosRealizados == votosEsperados
+                    };
+                })
+                .OrderBy(votante => votante.Papel)
+                .ToList();
+
+            var totalVotosEsperados =
+                artigosIds.Count * votantesObrigatorios.Count;
+
+            var totalVotosRegistrados = progressoVotantes
+                .Sum(votante => votante.VotosRealizados);
+
+            var percentualGeral = totalVotosEsperados == 0
+                ? 0
+                : Math.Round(
+                    totalVotosRegistrados * 100m
+                    / totalVotosEsperados,
+                    2);
+
+            return new ProgressoVotacaoDto
+            {
+                VotacaoId = votacao.Id,
+                RevisaoId = votacao.RevisaoId,
+                Status = votacao.Status,
+                TotalArtigos = artigosIds.Count,
+                TotalVotantesObrigatorios =
+                    votantesObrigatorios.Count,
+                TotalVotosEsperados = totalVotosEsperados,
+                TotalVotosRegistrados =
+                    totalVotosRegistrados,
+                PercentualGeral = percentualGeral,
+                TodosVotaram =
+                    totalVotosEsperados > 0
+                    && totalVotosRegistrados
+                        == totalVotosEsperados,
+                Votantes = progressoVotantes
+            };
+        }
+
+        public async Task<List<ConflitoVotacaoRespostaDto>>
+        ListarConflitosAsync(int votacaoId)
+        {
+            if (votacaoId <= 0)
+            {
+                throw new ArgumentException(
+                    "O identificador da votação é inválido.",
+                    nameof(votacaoId));
+            }
+
+            var usuarioIdClaim = _httpContextAccessor.HttpContext?
+                .User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(usuarioIdClaim, out var usuarioId))
+            {
+                throw new UnauthorizedAccessException(
+                    "Usuário não autenticado.");
+            }
+
+            var votacao = await _votacaoRepository
+                .ObterPorIdAsync(votacaoId);
+
+            if (votacao is null)
+            {
+                throw new KeyNotFoundException(
+                    "Votação não encontrada.");
+            }
+
+            var membro = await _revisaoMembroRepository
+                .BuscarPorRevisaoEUsuarioAsync(
+                    votacao.RevisaoId,
+                    usuarioId);
+
+            if (membro?.Papel != PapelMembroRevisao.Avaliador)
+            {
+                throw new UnauthorizedAccessException(
+                    "Apenas o avaliador pode visualizar os conflitos da votação.");
+            }
+
+            return votacao.Conflitos
+                .OrderBy(conflito => conflito.DataCriacao)
+                .Select(conflito => new ConflitoVotacaoRespostaDto
+                {
+                    Id = conflito.Id,
+                    VotacaoId = conflito.VotacaoId,
+                    ArtigoId = conflito.ArtigoId,
+                    Motivo = conflito.Motivo,
+                    Resolvido = conflito.Resolvido,
+                    DecisaoFinal = conflito.DecisaoFinal,
+                    AvaliadorId = conflito.AvaliadorId,
+                    DataCriacao = conflito.DataCriacao,
+                    DataResolucao = conflito.DataResolucao
+                })
+                .ToList();
+        }
 
         private static VotacaoRespostaDto
             MapearVotacao(
@@ -235,6 +432,43 @@ namespace UepaMed.Application.Services
                 Opcao = voto.Opcao,
                 DataRegistro = voto.DataRegistro
             };
+        }
+        private static void ApurarVotacaoSeTodosVotaram(
+        Votacao votacao)
+        {
+            var votantesObrigatorios = votacao.Participantes
+                .Where(participante =>
+                    participante.EhVotanteObrigatorio)
+                .ToList();
+
+            var artigosDaVotacao = votacao.Artigos
+                .Select(artigo => artigo.ArtigoId)
+                .ToList();
+
+            var todosVotaram = votantesObrigatorios.All(votante =>
+                artigosDaVotacao.All(artigoId =>
+                    votacao.Votos.Any(voto =>
+                        voto.UsuarioId == votante.UsuarioId
+                        && voto.ArtigoId == artigoId)));
+
+            if (!todosVotaram)
+            {
+                return;
+            }
+
+            foreach (var artigoId in artigosDaVotacao)
+            {
+                votacao.ApurarArtigo(artigoId);
+            }
+
+            if (votacao.Conflitos.Any())
+            {
+                votacao.IniciarResolucaoConflitos();
+
+                return;
+            }
+
+            votacao.Finalizar();
         }
     }
 }
